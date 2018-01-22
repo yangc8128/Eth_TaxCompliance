@@ -61,30 +61,3 @@ contract employmentRecord is owned {
     }
 }
 
-
-contract Payment is owned {
-
-}
-
-
-contract FullTime_Payment is Payment {
-
-}
-
-
-contract PartTime_Payment is Payment {
-
-}
-
-
-contract Causal_Payment is Payment {
-
-}
-
-
-// https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
-// https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
-contract PaymentFactory is owned {
-    
-}
-
