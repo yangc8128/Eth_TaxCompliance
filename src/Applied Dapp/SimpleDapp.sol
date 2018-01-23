@@ -24,7 +24,7 @@ contract Mutex {
 
 // Enums in Solidity: https://ethereum.stackexchange.com/questions/24086/how-do-enums-work/24087
 contract employmentRecord is owned {
-    enum EmploymentType {FULL_TIME, PART_TIME, CASUAL, FIXED, CONTRACT, APPRENTICE, TRAIN, COMMISSION, PIECE_RATE};
+    enum EmploymentType {PERM, CASUAL, TRAIN, AGENCY, CONTRACT};
     struct Employee {
         string employeeFirstName;
         string employeeLastName;
