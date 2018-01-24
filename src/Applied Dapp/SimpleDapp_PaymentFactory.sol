@@ -1,36 +1,14 @@
 program solidity ^0.4.11;
 
-contract owned {
-    function owned() public { owner = msg.sender; }
-    address owner;
-
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-}
-
-// CHECK THE SECURITY RISKS FIRST!! PROBABLY THE REASON FOR THE DAO HACK
-contract Mutex {
-    bool locked;
-    modifier noReentrancy() {
-        require(!locked);
-        locked = true;
-        _;
-        locked = false;
-    }
-}
-
 // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
 // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
 contract PaymentFactory is owned {
     /*
-    PERM = Permanent(Full-time, Part-Time) / Fixed
-    CASUAL
-    TRAIN = Apprentice / Trainees
-    CONTRACT
+        PERM = Permanent(Full-time, Part-Time) / Fixed
+        CASUAL
+        CONTRACT
     */
-    enum EmploymentType {PERM, CASUAL, TRAIN, AGENCY, CONTRACT};
+    enum EmploymentType {PERM, CASUAL, CONTRACT};
 
     // index of created payment contracts
     address[] public paymentContracts;
@@ -41,10 +19,24 @@ contract PaymentFactory is owned {
 
     // function pointer equivalent: https://ethereum.stackexchange.com/questions/3342/pass-a-function-as-a-parameter-in-solidity
     // https://ethereumdev.io/manage-several-contracts-with-factories/
-    function newPayment(EmploymentType _employType) public returns(address _newPayment) {
-        // TODO: create contract "Cookie c = new Cookie()"
-        //paymentContracts.push(c);
-        //return c;
+    function createPayment(EmploymentType _status) public returns(address _newPayment) {
+        // TODO: Check for valid enum
+        switch (_status) {
+            case PERM:
+                PermanentPay _perm = new PermanentPay();
+                paymentContracts.push(_perm);
+                return _perm;
+            case CASUAL:
+                CasualPay _casual = new CasualPay();
+                paymentContracts.push(_casual);
+                return _casual;
+            case CONTRACT:
+                ContractPay _contract = new ContractPay();
+                paymentContracts.push(_contract);
+                return _contract;
+            default:
+                revert();
+        }
     }
 }
 
