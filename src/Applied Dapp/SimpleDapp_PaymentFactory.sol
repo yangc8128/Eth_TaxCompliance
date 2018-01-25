@@ -3,12 +3,7 @@ pragma solidity ^0.4.11;
 // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
 // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
 contract PaymentFactory is owned {
-    /*
-        PERM = Permanent(Full-time, Part-Time) / Fixed
-        CASUAL
-        CONTRACT
-    */
-    enum EmploymentType {PERM, CASUAL, CONTRACT};
+    enum EmploymentType {PERM, CASUAL, CONTRACT}
 
     // index of created payment contracts
     address[] public paymentContracts;
