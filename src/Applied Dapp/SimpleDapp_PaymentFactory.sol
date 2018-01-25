@@ -1,4 +1,4 @@
-program solidity ^0.4.11;
+pragma solidity ^0.4.11;
 
 // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
 // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434

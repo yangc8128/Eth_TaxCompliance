@@ -1,4 +1,4 @@
-program solidity ^0.4.11;
+pragma solidity ^0.4.11;
 
 contract owned {
     address owner;
@@ -33,11 +33,12 @@ contract EmploymentRecord is owned {
 
     event EmployeeCreation();
 
-    enum EmploymentType {PERM, CASUAL, CONTRACT};
+    enum EmploymentType {PERM, CASUAL, CONTRACT}
     struct Employee {
         string fName;
         string lastName;
         EmploymentType status;
+        bool active;
     }
 
     mapping (address => Employee) public employees;
@@ -46,10 +47,10 @@ contract EmploymentRecord is owned {
     // maps employee address to contract address
     mapping (address => address) public paymentContracts;
 
-    function setEmployee(address _addr, string _fName, string _lName, EmploymentType _status) {
-        require(employees[_addr].length == 0); // DOES this work?
+    function setEmployee(address _addr, string _fName, string _lName, EmploymentType _status) public onlyOwner{
+        require(employees[_addr].active == false);
 
-        Employee e = Employee(_fName, _lName, _status);
+        Employee memory e = Employee(_fName, _lName, _status, true);
         employees[_addr] = e;
 
         employeeAccts.push(_addr);

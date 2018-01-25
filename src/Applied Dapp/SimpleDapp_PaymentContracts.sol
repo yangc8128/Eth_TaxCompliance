@@ -1,4 +1,4 @@
-program solidity ^0.4.11;
+pragma solidity ^0.4.11;
 
 contract Payment is owned {
     event PaymentCreationEvent (
@@ -15,7 +15,7 @@ contract Payment is owned {
       uint datePaid; // LOOK INTO FURTHER (timestamp, now)
     );
 
-    enum PayPeriod {MONTHLY = 2629743, WEEKLY = 604800, SEMIMONTHLY = 1314871, BIWEEKLY = 302400};
+    enum PayPeriod {MONTHLY = 2629743, WEEKLY = 604800, SEMIMONTHLY = 1314871, BIWEEKLY = 302400}
     /*
         uint constant monthly = 2629743;
         uint constant weekly = 604800;
