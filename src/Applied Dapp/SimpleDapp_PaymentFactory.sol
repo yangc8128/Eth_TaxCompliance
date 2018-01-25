@@ -14,23 +14,21 @@ contract PaymentFactory is owned {
 
     // function pointer equivalent: https://ethereum.stackexchange.com/questions/3342/pass-a-function-as-a-parameter-in-solidity
     // https://ethereumdev.io/manage-several-contracts-with-factories/
-    function createPayment(EmploymentType _status) public returns(address _newPayment) {
-        // TODO: Check for valid enum
-        switch (_status) {
-            case PERM:
-                PermanentPay _perm = new PermanentPay();
-                paymentContracts.push(_perm);
-                return _perm;
-            case CASUAL:
+    function createPayment(EmploymentType _status) public onlyOwner returns(address _newPayment) {
+        if (_status == PaymentFactory.EmploymentType.PERM) {
+            PermanentPay _perm = new PermanentPay();
+            paymentContracts.push(_perm);
+            return _perm;
+        } else if (_status == PaymentFactory.EmploymentType.PERM) {
                 CasualPay _casual = new CasualPay();
                 paymentContracts.push(_casual);
                 return _casual;
-            case CONTRACT:
+        } else if (_status == PaymentFactory.EmploymentType.PERM) {
                 ContractPay _contract = new ContractPay();
                 paymentContracts.push(_contract);
                 return _contract;
-            default:
-                revert();
+        } else {
+            revert();
         }
     }
 }
