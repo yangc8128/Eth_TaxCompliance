@@ -35,6 +35,8 @@ contract Payment is owned {
       PaymentCreationEvent(owner,_receiver,_pay);
     }
 
+    function setPayCondition() public;
+
     function payout() public onlyOwner {
         if (!payCondition) revert(); // Return gas
         // take from owner
@@ -48,17 +50,29 @@ contract Payment is owned {
 
 contract PermanentPay is Payment {
     uint payFrequency;
+
+    // http://solidity.readthedocs.io/en/develop/contracts.html#arguments-for-base-constructors
+    function PermanentPay(address _receiver, uint _pay, uint _payFrequency) Payment(_receiver,_pay) {
+      payFrequency = _payFrequency;
+    }
 }
 
 contract CasualPay is Payment {
+    function CasualPay(address _receiver, uint _pay) Payment(_receiver,_pay) {}
+
     function setPayCondition() public onlyOwner {
       payCondition = true;
     }
 }
 
 contract ContractPay is Payment {
-    uint contractEndTime;
     uint payFrequency;
+    uint contractEndTime;
+
+    function ContractPay(address _receiver, uint _pay, uint _payFrequency, uint _endTime) Payment(_receiver,_pay) {
+      contractEndTime = _endTime;
+      payFrequency = _payFrequency;
+    }
 
     function earlyTermination() public onlyOwner {
       close();

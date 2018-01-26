@@ -20,13 +20,13 @@ contract PaymentFactory is owned {
             paymentContracts.push(_perm);
             return _perm;
         } else if (_status == PaymentFactory.EmploymentType.PERM) {
-                CasualPay _casual = new CasualPay();
-                paymentContracts.push(_casual);
-                return _casual;
+            CasualPay _casual = new CasualPay();
+            paymentContracts.push(_casual);
+            return _casual;
         } else if (_status == PaymentFactory.EmploymentType.PERM) {
-                ContractPay _contract = new ContractPay();
-                paymentContracts.push(_contract);
-                return _contract;
+            ContractPay _contract = new ContractPay();
+            paymentContracts.push(_contract);
+            return _contract;
         } else {
             revert();
         }
