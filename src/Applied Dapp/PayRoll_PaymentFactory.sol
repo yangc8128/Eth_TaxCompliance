@@ -16,15 +16,15 @@ contract PaymentFactory is owned {
     // https://ethereumdev.io/manage-several-contracts-with-factories/
     function createPayment(EmploymentType _status) public onlyOwner returns(address _newPayment) {
         if (_status == PaymentFactory.EmploymentType.PERM) {
-            PermanentPay _perm = new PermanentPay();
+            PermanentPay _perm = new PermanentPay(_employee,100,100);
             paymentContracts.push(_perm);
             return _perm;
         } else if (_status == PaymentFactory.EmploymentType.PERM) {
-            CasualPay _casual = new CasualPay();
+            CasualPay _casual = new CasualPay(_employee,100);
             paymentContracts.push(_casual);
             return _casual;
         } else if (_status == PaymentFactory.EmploymentType.PERM) {
-            ContractPay _contract = new ContractPay();
+            ContractPay _contract = new ContractPay(_employee,100,100,100);
             paymentContracts.push(_contract);
             return _contract;
         } else {

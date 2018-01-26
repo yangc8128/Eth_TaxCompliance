@@ -54,6 +54,8 @@ contract EmploymentRecord is owned {
         employees[_addr] = e;
 
         employeeAccts.push(_addr);
+
+        EmployeeCreation();
     }
 
 }

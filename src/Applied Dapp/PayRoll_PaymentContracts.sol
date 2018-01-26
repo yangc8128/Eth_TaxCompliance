@@ -17,8 +17,8 @@ contract Payment is owned {
 
     uint constant MONTHLY = 2629743;
     uint constant WEEKLY = 604800;
-    uint constant SEMIMONTHLY = 1314871;
-    uint constant BIWEEKLY = 302400;
+    uint constant SEMI_MONTHLY = 1314871;
+    uint constant BI_WEEKLY = 302400;
 
     // Contract members
     address receiver;
@@ -52,13 +52,17 @@ contract PermanentPay is Payment {
     uint payFrequency;
 
     // http://solidity.readthedocs.io/en/develop/contracts.html#arguments-for-base-constructors
-    function PermanentPay(address _receiver, uint _pay, uint _payFrequency) Payment(_receiver,_pay) {
+    function PermanentPay(address _receiver, uint _pay, uint _payFrequency) public Payment(_receiver,_pay) {
       payFrequency = _payFrequency;
+    }
+
+    function setPayCondition() public {
+        payCondition = true;
     }
 }
 
 contract CasualPay is Payment {
-    function CasualPay(address _receiver, uint _pay) Payment(_receiver,_pay) {}
+    function CasualPay(address _receiver, uint _pay) public Payment(_receiver,_pay) {}
 
     function setPayCondition() public onlyOwner {
       payCondition = true;
@@ -69,9 +73,13 @@ contract ContractPay is Payment {
     uint payFrequency;
     uint contractEndTime;
 
-    function ContractPay(address _receiver, uint _pay, uint _payFrequency, uint _endTime) Payment(_receiver,_pay) {
+    function ContractPay(address _receiver, uint _pay, uint _payFrequency, uint _endTime) public Payment(_receiver,_pay) {
       contractEndTime = _endTime;
       payFrequency = _payFrequency;
+    }
+
+    function setPayCondition() public {
+        payCondition = true;
     }
 
     function earlyTermination() public onlyOwner {
