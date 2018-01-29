@@ -1,5 +1,13 @@
 pragma solidity ^0.4.11;
 
+/*
+https://ethereum.stackexchange.com/questions/19341/address-send-vs-address-transfer-best-practice-usage
+https://vomtom.at/solidity-send-vs-transfer/
+https://zupzup.org/smart-contract-interaction/
+https://github.com/PeterBorah/smart-contract-security-examples/issues/3
+http://vessenes.com/more-ethereum-attacks-race-to-empty-is-the-real-deal/
+*/
+
 contract owned {
     address owner;
     bool active;
