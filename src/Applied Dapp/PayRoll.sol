@@ -12,7 +12,7 @@ contract owned {
     address owner;
     bool active;
 
-    function owned() public {
+    function owned( ) public {
         owner = msg.sender;
         active = true;
     }
@@ -22,13 +22,13 @@ contract owned {
         _;
     }
 
-    function getActive() public constant returns(bool) {return active;}
+    function getActive( ) public constant returns(bool) {return active;}
 
-    function stop() public onlyOwner {
+    function stop( ) public onlyOwner {
         active = false;
     }
 
-    function close() public onlyOwner {
+    function close( ) public onlyOwner {
         selfdestruct(owner);
     }
 }
@@ -37,7 +37,7 @@ contract owned {
 // CHECK THE SECURITY RISKS FIRST!! PROBABLY THE REASON FOR THE DAO HACK
 contract Mutex {
     bool locked;
-    modifier noReentrancy() {
+    modifier noReentrancy( ) {
         require(!locked);
         locked = true;
         _;
@@ -49,9 +49,9 @@ contract Mutex {
 // Enums in Solidity: https://ethereum.stackexchange.com/questions/24086/how-do-enums-work/24087
 contract EmploymentRecord is owned {
 
-    event EmployeeCreation();
+    event EmployeeCreation( );
 
-    enum EmploymentType {PERM, CASUAL, CONTRACT}
+    enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
 
     struct Employee {
         string fName;
@@ -76,12 +76,12 @@ contract EmploymentRecord is owned {
 
         employeeAccts.push(_addr);
 
-        EmployeeCreation();
+        EmployeeCreation( );
     }
 
     // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
     // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
-    function getPaymentContractCount() public constant returns(uint _length) {
+    function getPaymentContractCount( ) public constant returns(uint _length) {
         return paymentIndex.length;
     }
 
@@ -91,7 +91,7 @@ contract EmploymentRecord is owned {
         // Check if there already exists a Payment contract, that is still active
         // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
         Payment p = Payment(paymentContracts[_employee]);
-        require(!p.getActive());
+        require(!p.getActive( ));
 
         // address, payPerFrequency, frequency, endTime
         if (_status == EmploymentRecord.EmploymentType.PERM) {
@@ -157,9 +157,9 @@ contract Payment is owned {
       PaymentCreationEvent(owner,_receiver,_pay);
     }
 
-    function setPayCondition() public;
+    function setPayCondition( ) public;
 
-    function payout() public onlyOwner {
+    function payout( ) public onlyOwner {
         require(!payCondition);
 
         // Notes on ether transfer: https://vomtom.at/solidity-send-vs-transfer/
@@ -175,7 +175,7 @@ contract PermanentPay is Payment {
     // http://solidity.readthedocs.io/en/develop/contracts.html#arguments-for-base-constructors
     function PermanentPay(address _receiver, uint _pay, uint _frequency) public Payment(_receiver, _pay, _frequency, 0) { }
 
-    function setPayCondition() public {
+    function setPayCondition( ) public {
         payCondition = true;
     }
 }
@@ -184,7 +184,7 @@ contract PermanentPay is Payment {
 contract CasualPay is Payment {
     function CasualPay(address _receiver, uint _pay) public Payment(_receiver,_pay,0,0) { }
 
-    function setPayCondition() public onlyOwner {
+    function setPayCondition( ) public onlyOwner {
       payCondition = true;
     }
 }
@@ -196,11 +196,11 @@ contract ContractPay is Payment {
 
     function ContractPay(address _receiver, uint _pay, uint _payFrequency, uint _endTime) public Payment(_receiver,_pay,_payFrequency,_endTime) { }
 
-    function setPayCondition() public {
+    function setPayCondition( ) public {
         payCondition = true;
     }
 
-    function earlyTermination() public onlyOwner {
+    function earlyTermination( ) public onlyOwner {
       stop();
     }
 }
