@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body>
+    <--https://stackoverflow.com/questions/1992114/how-do-you-create-a-hidden-div-that-doesnt-create-a-line-break-or-horizontal-sp -->
+    <div id="Home" class="container">
+
+        <h1>Simple Payroll System</h1>
+
+        <button id="button1">Action on Employees</button>
+        <button id="button2">Action on Payments</button>
+
+    </div>
+
+    <div id="ActionsEmployees" class="container" style="display: none;">
+
+        <h1>Actions on Employees</h1>
+    
+        <button id="button3">Access Employee</button>
+        <button id="button4">Signup Employee</button>
+        <button id="button5">Change Employee Status</button>
+        
+    </div>
+
+    <div id="ActionsPayments" class="container" style="display: none;">
+
+        <h1>Actions on Payments</h1>
+    
+        <button id="button6">Create Payment</button>
+        <button id="button7">Invalidate Payment</button>
+        <button id="button8">Replace Payment</button>
+    
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        // Ethereum Account provided by TestRPC
+        web3.eth.defaultAccount = web3.eth.accounts[0];
+        
+        // Connecting to the Smart Contract
+        var CoursetroContract = web3.eth.contract("PASTE ABI HERE!");
+        var Coursetro = CoursetroContract.at('CONTRACT ADDRESS');
+        console.log(Coursetro);
+
+		// The call to Instructor() references the event
+        var instructorEvent = Coursetro.Instructor();
+
+        // This is how the event is monitored
+        instructorEvent.watch(function(error,result) {
+            // Do something with the event that was returned
+        
+          /*
+          // This is how we start the whole event process, from user input
+          $("#button").click(function() {
+            // Call a function from the Smart Contract
+          }*/
+        });
+
+    </script>
+
+    <script>
+        // For Home
+        document.getElementById("button1").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        document.getElementById("button2").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        // For Actions on Employees
+        document.getElementById("button3").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        document.getElementById("button4").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        document.getElementById("button5").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        // For Actions on Payments
+        document.getElementById("button6").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        document.getElementById("button7").onclick = function () {
+            location.href = "THE PAGE";
+        };
+
+        document.getElementById("button8").onclick = function () {
+            location.href = "THE PAGE";
+        };
+    </script>
+
+</body>
+</html>
