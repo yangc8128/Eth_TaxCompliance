@@ -9,32 +9,42 @@
     <link rel="stylesheet" type="text/css" href="main.css">
 
     <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
 
+    <script>
+        $(function() {
+            $("#CreatePayment").load("CreatePayment.html");
+        });
+    </script>
 </head>
 
-<div class="container">
 
-    <h1>Actions on Payments</h1>
+<body>
+    <div id="HeadPayment" class="container">
 
-    <button id="button1">Create Payment</button>
-    <button id="button2">Invalidate Payment</button>
-    <button id="button3">Replace Payment</button>
+        <h1>Actions on Payments</h1>
+    
+        <button id="button7">Create Payment</button>
+        <!-- <button id="button8">Invalidate Payment</button>
+        <button id="button9">Replace Payment</button> -->
+    
+    </div>
+    <div id="CreatePayment" style="display: none;"></div>
 
-
-</div>
-
-<script>
-
-    document.getElementById("button1").onclick = function () {
-        location.href = "THE PAGE";
-    };
-
-    document.getElementById("button2").onclick = function () {
-        location.href = "THE PAGE";
-    };
-
-    document.getElementById("button3").onclick = function () {
-        location.href = "THE PAGE";
-    };
-
-</script>
+    <script>
+        document.getElementById("button7").onclick = function () {
+            document.getElementById("HeadPayment").style = "display: none;";
+            document.getElementById("CreatePayment").style = "display: block;";
+        };
+    /*
+        document.getElementById("button2").onclick = function () {
+            //location.href = "THE PAGE";
+        };
+    
+        document.getElementById("button3").onclick = function () {
+            //location.href = "THE PAGE";
+        };
+    */
+    </script>
+</body>
+</html>
