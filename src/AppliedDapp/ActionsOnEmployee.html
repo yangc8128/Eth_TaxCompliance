@@ -9,31 +9,44 @@
     <link rel="stylesheet" type="text/css" href="main.css">
 
     <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+
+    <script>
+        $(function() {
+            $("#AccessEmployee").load("AccessEmployee.html");
+            $("#SetEmployee").load("SetEmployee.html");
+    });
+    </script>
 
 </head>
+<body>
+    <div id="HeadEmployee" class="container">
 
-<div class="container">
+        <h1>Actions on Employees</h1>
+    
+        <button id="button_DisplayAccessEmployee">Access Employee</button>
+        <button id="button_DisplaySetEmployee">Signup Employee</button>
+    <!--    <button id="button6">Change Employee Status</button> -->
+    
+    </div>
+    <div id="SetEmployee" style="display: none;"></div>
 
-    <h1>Actions on Employees</h1>
-
-    <button id="button1">Access Employee</button>
-    <button id="button2">Signup Employee</button>
-    <button id="button3">Change Employee Status</button>
-
-</div>
-
-<script>
-
-    document.getElementById("button1").onclick = function () {
-        location.href = "THE PAGE";
-    };
-
-    document.getElementById("button2").onclick = function () {
-        location.href = "THE PAGE";
-    };
-
-    document.getElementById("button3").onclick = function () {
-        location.href = "THE PAGE";
-    };
-
-</script>
+    <script>
+        document.getElementById("button_DisplayAccessEmployee").onclick = function () {
+            document.getElementById("HeadEmployee").style ="display: none;";
+            document.getElementById("AccessEmployee").style ="display: block;";
+        };
+    
+        document.getElementById("button_DisplaySetEmployee").onclick = function () {
+            document.getElementById("HeadEmployee").style ="display: none;";
+            document.getElementById("SetEmployee").style ="display: block;";
+        };
+    /*
+        document.getElementById("button6").onclick = function () {
+            document.getElementById("Head").style = "display: none;";
+            document.getElementById("ChangeEmployee").style = "display: block;";
+        };
+    */
+    </script>
+</body>
+</html>
