@@ -86,10 +86,9 @@ contract EmploymentRecord is Owned {
     }
 
     // Access an Employee by its address, and returns an event for the DApp
-    function accessEmployee(address _addr) public constant {
+    function accessEmployee(address _addr) public {
         Employee memory e = employees[_addr];
         AccessEmployeeEvent(e.fName,e.lName,e.status,e.active);
-
     }
 
     // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
@@ -104,7 +103,7 @@ contract EmploymentRecord is Owned {
         Payment p = Payment(paymentContracts[_employee]);
 
         // Check if there already exists a Payment contract, that is still active
-        require(!p.getActive( ));
+        require(!p.getActive());
         // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
 
         // address, payPerFrequency, frequency, endTime
@@ -120,7 +119,7 @@ contract EmploymentRecord is Owned {
             paymentIndex.push(_casual);
             return _casual;
         } else if (_status == EmploymentRecord.EmploymentType.CONTRACT) {
-            ContractPay _contract = new ContractPay(_employee,_pay,_frequency,_endTime);
+            ContractPay _contract = new ContractPay(_employee,_pay,_frequency,_end);
             paymentContracts[_employee] = _contract;
             paymentIndex.push(_contract);
             return _contract;
