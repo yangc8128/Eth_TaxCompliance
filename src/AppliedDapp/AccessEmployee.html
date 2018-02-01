@@ -12,16 +12,41 @@
 
 </head>
 
-<body>
-    <div class="container">
+<div class="container">
 
-        <h1>Simple Payroll System</h1>
+    <h1>Accessing Employee Info</h1>
+
+    <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
+    <input id="employeeAddress" type="text">
+
+    <button id="button_AccessEmployee">Access Employee</button>
+
+</div>
+
+<div id="AccessEmployeeResponse" style="display: none;">
+    <p id="employeeAddress">Employee Address: error</p>
+    <p id="employeefName">Employee First Name: error</p>
+    <p id="employeelName">Employee Last Name: error</p>
+    <p id="employeeStatus">Employee Status: error</p>
+    <p id="employeeActive">Employee Active: error</p>
+</div>
+
+<script>
+    var accessEmployeeEvent = Payroll.AccessEmployeeEvent();
+    accessEmployeeEvent.watch(function(error,result) {
+        var templateResponse = "Employee ";
+        document.getElementById("employeeAddress").innerHTML = templateResponse + "Address: " + $("#employeeAddress").val();
+        if (!error) {
+            document.getElementById("employeefName").innerHTML = templateResponse + "First Name:" + result.args.fName;
+            document.getElementById("employeelName").innerHTML = templateResponse + "Last Name:" + result.args.lName;
+            document.getElementById("employeeStatus").innerHTML = templateResponse + "Status:" + result.args.status;
+            document.getElementById("employeeactive").innerHTML = templateResponse + "Active:" + result.args.active;
+        }
+        document.getElementById("AccessEmployeeResponse").style="display: block";
+    });
     
-        <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
-        <input id="employeeAddress" type="text">
-    
-        <button id="button">Access Employee</button>
-    
-    </div>
-</body>
+    $("#button_AccessEmployee").click(function( ) {
+        Payroll.accessEmployee($("#employeeAddress").val());
+    });
+</script>
 </html>

@@ -50,6 +50,12 @@ contract Mutex {
 contract EmploymentRecord is owned {
 
     event EmployeeCreation( );
+    event AccessEmployeeEvent(
+        string fName,
+        string lastName,
+        EmploymentType status,
+        bool active
+    );
 
     enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
 
@@ -77,6 +83,13 @@ contract EmploymentRecord is owned {
         employeeAccts.push(_addr);
 
         EmployeeCreation( );
+    }
+
+    // Access an Employee by its address, and returns an event for the DApp
+    function accessEmployee(address _addr) public constant {
+        Employee e= employees[_addr];
+        AccessEmployeeEvent(e.fName,e.lName,e.status,e.active);
+
     }
 
     // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix

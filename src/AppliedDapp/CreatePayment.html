@@ -12,24 +12,40 @@
 
 </head>
 
-<body>
-    <div class="container">
+<div class="container">
 
-        <h1>Create Payment<h2>
-    
-        <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
-        <input id="employeeAddress" type="text">
-    
-        <label for="payPerFrequency" class="col-lg-2 control-label">Pay per Frequency</label>
-        <input id="payPerFrequency" type="number">
-    
-        <!-- 0=NONE, 1=WEEKLY, 2=BI_WEEKLY, 3=SEMI_MONTHLY, 4=MONTHLY -->
-        <label for="frequency" class="col-lg-2 control-label">Frequency</label>
-        <input id="frequency" type="number">
-    
-        <label for="contractEndTime" class="col-lg-2 control-label">Contract End Time</label>
-        <input id="contractEndTime" type="number">
-    
-    </div>
-</body>
+    <h1>Create Payment<h2>
+
+    <p id="SuccessfulPayment" style="display: none">Success!</p>
+
+    <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
+    <input id="employeeAddress" type="text">
+
+    <label for="payPerFrequency" class="col-lg-2 control-label">Pay per Frequency</label>
+    <input id="payPerFrequency" type="number">
+
+    <!-- 0=NONE, 1=WEEKLY, 2=BI_WEEKLY, 3=SEMI_MONTHLY, 4=MONTHLY -->
+    <label for="frequency" class="col-lg-2 control-label">Frequency</label>
+    <input id="frequency" type="number">
+
+    <label for="contractEndTime" class="col-lg-2 control-label">Contract End Time</label>
+    <input id="contractEndTime" type="number">
+
+    <button id="SubmitPayment"></button>
+
+</div>
+
+<script>
+    var createPaymentEvent = Payroll.CreatePaymentEvent();
+    createPaymentEvent.watch(function(error,result) {
+        if (error) {
+            $("#SuccessfulPayment").innerHTML = "Failure";
+        }
+        $("#SuccessfulPayment").style = "display: block";
+    });
+
+    $("#SubmitPayment").click(function() {
+        Payroll.createPayment();
+    });
+</script>
 </html>
