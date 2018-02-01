@@ -37,12 +37,12 @@
         web3.eth.defaultAccount = web3.eth.accounts[0];
         
         // Connecting to the Smart Contract
-        //var CoursetroContract = web3.eth.contract("PASTE ABI HERE!");
-        //var Coursetro = CoursetroContract.at('CONTRACT ADDRESS');
-        //console.log(Coursetro);
+        var PayrollContract = web3.eth.contract("PASTE ABI HERE!");
+        var Payroll = PayrollContract.at('CONTRACT ADDRESS');
+        console.log(Payroll);
 
 		// The call to Instructor() references the event
-        //var instructorEvent = Coursetro.Instructor();
+        //var instructorEvent = Payroll.Instructor();
 
         // This is how the event is monitored
         //instructorEvent.watch(function(error,result) {

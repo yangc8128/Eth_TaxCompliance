@@ -25,20 +25,20 @@
 
         <h1>Decide Action</h1>
     
-        <button id="button1">Action on Employees</button>
-        <button id="button2">Action on Payments</button>
+        <button id="button_DisplayEmployeeAction">Action on Employees</button>
+        <button id="button_DisplayPaymentAction">Action on Payments</button>
     
     </div>
     <div id="ActionsEmployees" style="display: none;"></div>
     <div id="ActionsPayments" style="display: none;"></div>
     
     <script>
-        document.getElementById("button1").onclick = function () {
+        document.getElementById("button_DisplayEmployeeAction").onclick = function () {
             document.getElementById("Head").style = "display: none;";
             document.getElementById("ActionsEmployees").style = "display: block;";
         };
 
-        document.getElementById("button2").onclick = function () {
+        document.getElementById("button_DisplayPaymentAction").onclick = function () {
             document.getElementById("Head").style = "display: none;";
             document.getElementById("ActionsPayments").style = "display: block;";
         };

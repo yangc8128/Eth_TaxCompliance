@@ -24,20 +24,20 @@
 
         <h1>Actions on Employees</h1>
     
-        <button id="button4">Access Employee</button>
-        <button id="button5">Signup Employee</button>
+        <button id="button_DisplayAccessEmployee">Access Employee</button>
+        <button id="button_DisplaySetEmployee">Signup Employee</button>
     <!--    <button id="button6">Change Employee Status</button> -->
     
     </div>
     <div id="SetEmployee" style="display: none;"></div>
 
     <script>
-        document.getElementById("button4").onclick = function () {
+        document.getElementById("button_DisplayAccessEmployee").onclick = function () {
             document.getElementById("HeadEmployee").style ="display: none;";
             document.getElementById("AccessEmployee").style ="display: block;";
         };
     
-        document.getElementById("button5").onclick = function () {
+        document.getElementById("button_DisplaySetEmployee").onclick = function () {
             document.getElementById("HeadEmployee").style ="display: none;";
             document.getElementById("SetEmployee").style ="display: block;";
         };
