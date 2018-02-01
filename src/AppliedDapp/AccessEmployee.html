@@ -45,7 +45,7 @@
         document.getElementById("AccessEmployeeResponse").style="display: block";
     });
     
-    $("#button_AccessEmployee").click(function( ) {
+    document.getElementById("button_AccessEmployee").onclick(function( ) {
         Payroll.accessEmployee($("#employeeAddress").val());
     });
 </script>
