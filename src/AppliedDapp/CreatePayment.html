@@ -16,6 +16,8 @@
 
     <h1>Create Payment<h2>
 
+    <p id="SuccessfulPayment" style="display: none">Success!</p>
+
     <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
     <input id="employeeAddress" type="text">
 
@@ -29,4 +31,18 @@
     <label for="contractEndTime" class="col-lg-2 control-label">Contract End Time</label>
     <input id="contractEndTime" type="number">
 
+    <button id="SubmitPayment"></button>
+
 </div>
+
+<script>
+    var createPaymentEvent = Payroll.CreatePaymentEvent();
+    createPaymentEvent.watch(function(error,result) {
+        // TODO
+    });
+
+    $("#SubmitPayment").click(function() {
+        // TODO
+    });
+</script>
+</html>
