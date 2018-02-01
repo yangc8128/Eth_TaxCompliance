@@ -173,7 +173,7 @@ contract Payment is Owned {
 
     function setPayCondition( ) public;
 
-    function payout( ) public onlyOwner {
+    function payout( ) public payable onlyOwner {
         require(!payCondition);
 
         // Notes on ether transfer: https://vomtom.at/solidity-send-vs-transfer/
