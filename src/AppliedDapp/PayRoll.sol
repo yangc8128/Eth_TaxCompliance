@@ -100,25 +100,27 @@ contract EmploymentRecord is owned {
 
     // function pointer equivalent: https://ethereum.stackexchange.com/questions/3342/pass-a-function-as-a-parameter-in-solidity
     // https://ethereumdev.io/manage-several-contracts-with-factories/
-    function createPayment(address _employee, EmploymentType _status) public onlyOwner returns(address _newPayment) {
-        // Check if there already exists a Payment contract, that is still active
-        // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
+    function createPayment(EmploymentType _status, address _employee, uint _pay, uint _frequency, uint _end) public onlyOwner returns(address _newPayment) {
         Payment p = Payment(paymentContracts[_employee]);
+
+        // Check if there already exists a Payment contract, that is still active
         require(!p.getActive( ));
+        // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
 
         // address, payPerFrequency, frequency, endTime
+        // OWNER, PERM, CASUAL, CONTRACT
         if (_status == EmploymentRecord.EmploymentType.PERM) {
-            PermanentPay _perm = new PermanentPay(_employee,100,100);
+            PermanentPay _perm = new PermanentPay(_employee,_pay,_frequency);
             paymentContracts[_employee] = _perm;
             paymentIndex.push(_perm);
             return _perm;
-        } else if (_status == EmploymentRecord.EmploymentType.PERM) {
-            CasualPay _casual = new CasualPay(_employee,100);
+        } else if (_status == EmploymentRecord.EmploymentType.CASUAL) {
+            CasualPay _casual = new CasualPay(_employee,_pay);
             paymentContracts[_employee] = _casual;
             paymentIndex.push(_casual);
             return _casual;
-        } else if (_status == EmploymentRecord.EmploymentType.PERM) {
-            ContractPay _contract = new ContractPay(_employee,100,100,100);
+        } else if (_status == EmploymentRecord.EmploymentType.CONTRACT) {
+            ContractPay _contract = new ContractPay(_employee,_pay,_frequency,_endTime);
             paymentContracts[_employee] = _contract;
             paymentIndex.push(_contract);
             return _contract;
