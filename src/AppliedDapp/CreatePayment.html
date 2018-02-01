@@ -38,11 +38,14 @@
 <script>
     var createPaymentEvent = Payroll.CreatePaymentEvent();
     createPaymentEvent.watch(function(error,result) {
-        // TODO
+        if (error) {
+            $("#SuccessfulPayment").innerHTML = "Failure";
+        }
+        $("#SuccessfulPayment").style = "display: block";
     });
 
     $("#SubmitPayment").click(function() {
-        // TODO
+        Payroll.createPayment();
     });
 </script>
 </html>
