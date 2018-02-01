@@ -8,11 +8,11 @@ https://github.com/PeterBorah/smart-contract-security-examples/issues/3
 http://vessenes.com/more-ethereum-attacks-race-to-empty-is-the-real-deal/
 */
 
-contract owned {
+contract Owned {
     address owner;
     bool active;
 
-    function owned( ) public {
+    function Owned( ) public {
         owner = msg.sender;
         active = true;
     }
@@ -47,12 +47,12 @@ contract Mutex {
 
 
 // Enums in Solidity: https://ethereum.stackexchange.com/questions/24086/how-do-enums-work/24087
-contract EmploymentRecord is owned {
+contract EmploymentRecord is Owned {
 
     event EmployeeCreation( );
     event AccessEmployeeEvent(
         string fName,
-        string lastName,
+        string lName,
         EmploymentType status,
         bool active
     );
@@ -61,7 +61,7 @@ contract EmploymentRecord is owned {
 
     struct Employee {
         string fName;
-        string lastName;
+        string lName;
         EmploymentType status;
         bool active;
     }
@@ -74,7 +74,7 @@ contract EmploymentRecord is owned {
     // index of created payment contracts
     address[] public paymentIndex;
 
-    function setEmployee(address _addr, string _fName, string _lName, EmploymentType _status) public onlyOwner{
+    function setEmployee(address _addr, string _fName, string _lName, EmploymentType _status) public onlyOwner {
         require(employees[_addr].active == false);
 
         Employee memory e = Employee(_fName, _lName, _status, true);
@@ -82,12 +82,12 @@ contract EmploymentRecord is owned {
 
         employeeAccts.push(_addr);
 
-        EmployeeCreation( );
+        EmployeeCreation();
     }
 
     // Access an Employee by its address, and returns an event for the DApp
     function accessEmployee(address _addr) public constant {
-        Employee e= employees[_addr];
+        Employee memory e = employees[_addr];
         AccessEmployeeEvent(e.fName,e.lName,e.status,e.active);
 
     }
@@ -104,7 +104,7 @@ contract EmploymentRecord is owned {
         // Check if there already exists a Payment contract, that is still active
         // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
         Payment p = Payment(paymentContracts[_employee]);
-        require(!p.getActive( ));
+        require(!p.getActive());
 
         // address, payPerFrequency, frequency, endTime
         if (_status == EmploymentRecord.EmploymentType.PERM) {
@@ -129,7 +129,7 @@ contract EmploymentRecord is owned {
 }
 
 
-contract Payment is owned {
+contract Payment is Owned {
     event PaymentCreationEvent (
       address owner,
       address receiver,
@@ -146,7 +146,7 @@ contract Payment is owned {
 
     // NONE, WEEKLY, BI_WEEKLY, SEMI_MONTHLY, MONTHLY
     // Note: Not supported to be constant as of yet
-    uint [] public frequencies = [0,604800,302400,1314871,2629743];
+    uint[] public frequencies = [0,604800,302400,1314871,2629743];
 
     // Contract members
     address receiver;
