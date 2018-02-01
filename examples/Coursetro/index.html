@@ -69,18 +69,18 @@
                 $("#loader").hide();
                 console.log(error);
             }
-        }
+        });
 
-        $("#button").click(function() {
-<!-- Replaced for the addition of function modifiers in this case to result in an error of improper ownership
-            Coursetro.setInstructor($("#name").val(), $("#age").val());
--->
-            Coursetro.setInstructor($("#name").val(), $("#age").val(), (error,res) => {
-                if (err) {
-                    $("loader").hide();
-                    console.log('oh no');
-                }
-            }
+	        $("#button").click(function() {
+	/* Replaced for the addition of function modifiers in this case to result in an error of improper ownership
+	            Coursetro.setInstructor($("#name").val(), $("#age").val());
+			*/
+	            Coursetro.setInstructor($("#name").val(), $("#age").val(), (error,res) => {
+	                if (err) {
+	                    $("loader").hide();
+	                    console.log('oh no');
+	                }
+	            }
         });
 
 
