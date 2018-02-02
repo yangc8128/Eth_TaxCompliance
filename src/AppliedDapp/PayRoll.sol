@@ -99,27 +99,30 @@ contract EmploymentRecord is Owned {
 
     // function pointer equivalent: https://ethereum.stackexchange.com/questions/3342/pass-a-function-as-a-parameter-in-solidity
     // https://ethereumdev.io/manage-several-contracts-with-factories/
-    function createPayment(EmploymentType _status, address _employee, uint _pay, uint _frequency, uint _end) public onlyOwner returns(address _newPayment) {
+    function createPayment(EmploymentType _status, address _sender, address _employee, uint _pay, uint _frequency, uint _end) public onlyOwner returns(address _newPayment) {
+        // Ensuring that gasSize is not overflowed when going over every individual payouts
+        if (paymentIndex.length > 100) {revert();}
+        // Ensuring that Payments are only given to actual Employees
+        if (!employees[_employee].active) {revert();}
+
         Payment p = Payment(paymentContracts[_employee]);
 
         // Check if there already exists a Payment contract, that is still active
         require(!p.getActive());
         // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
 
-        // address, payPerFrequency, frequency, endTime
-        // OWNER, PERM, CASUAL, CONTRACT
         if (_status == EmploymentRecord.EmploymentType.PERM) {
-            PermanentPay _perm = new PermanentPay(_employee,_pay,_frequency);
+            PermanentPay _perm = new PermanentPay(_sender,_employee,_pay,_frequency);
             paymentContracts[_employee] = _perm;
             paymentIndex.push(_perm);
             return _perm;
         } else if (_status == EmploymentRecord.EmploymentType.CASUAL) {
-            CasualPay _casual = new CasualPay(_employee,_pay);
+            CasualPay _casual = new CasualPay(_sender,_employee,_pay);
             paymentContracts[_employee] = _casual;
             paymentIndex.push(_casual);
             return _casual;
         } else if (_status == EmploymentRecord.EmploymentType.CONTRACT) {
-            ContractPay _contract = new ContractPay(_employee,_pay,_frequency,_end);
+            ContractPay _contract = new ContractPay(_sender,_employee,_pay,_frequency,_end);
             paymentContracts[_employee] = _contract;
             paymentIndex.push(_contract);
             return _contract;
@@ -150,9 +153,9 @@ contract Payment is Owned {
     uint[] public frequencies = [0,604800,302400,1314871,2629743];
 
     // Contract members
+    address sender;
     address receiver;
-    // Representative of onetime/wage/salary pay per frequency timespan
-    uint pay;
+    uint pay;     // Representative of onetime/wage/salary pay per frequency timespan
     uint frequency;
     uint endTime;
 
@@ -161,7 +164,8 @@ contract Payment is Owned {
 
     // address, payPerFrequency, frequency, endTime
 
-    function Payment(address _receiver, uint _pay, uint _frequency, uint _endTime) public {
+    function Payment(address _sender, address _receiver, uint _pay, uint _frequency, uint _endTime) public {
+      sender = _sender;
       receiver = _receiver;
       pay = _pay;
       frequency = frequencies[_frequency];
@@ -187,8 +191,9 @@ contract Payment is Owned {
 
 contract PermanentPay is Payment {
     // http://solidity.readthedocs.io/en/develop/contracts.html#arguments-for-base-constructors
-    function PermanentPay(address _receiver, uint _pay, uint _frequency) public Payment(_receiver, _pay, _frequency, 0) { }
+    function PermanentPay(address _sender, address _receiver, uint _pay, uint _frequency) public Payment(_sender,_receiver, _pay, _frequency, 0) { }
 
+    // Based off of frequency
     function setPayCondition( ) public {
         payCondition = true;
     }
@@ -196,7 +201,7 @@ contract PermanentPay is Payment {
 
 
 contract CasualPay is Payment {
-    function CasualPay(address _receiver, uint _pay) public Payment(_receiver,_pay,0,0) { }
+    function CasualPay(address _sender, address _receiver, uint _pay) public Payment(_sender,_receiver,_pay,0,0) { }
 
     function setPayCondition( ) public onlyOwner {
       payCondition = true;
@@ -205,11 +210,9 @@ contract CasualPay is Payment {
 
 
 contract ContractPay is Payment {
-    uint payFrequency;
-    uint contractEndTime;
+    function ContractPay(address _sender, address _receiver, uint _pay, uint _payFrequency, uint _endTime) public Payment(_sender,_receiver,_pay,_payFrequency,_endTime) { }
 
-    function ContractPay(address _receiver, uint _pay, uint _payFrequency, uint _endTime) public Payment(_receiver,_pay,_payFrequency,_endTime) { }
-
+    // Based off of frequency and contract endTime
     function setPayCondition( ) public {
         payCondition = true;
     }
