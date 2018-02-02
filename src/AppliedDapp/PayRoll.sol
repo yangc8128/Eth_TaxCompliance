@@ -22,7 +22,9 @@ contract Owned {
         _;
     }
 
-    function getActive( ) public constant returns(bool) {return active;}
+    function getActive( ) public constant returns(bool) {
+        return active;
+    }
 
     function stop( ) public onlyOwner {
         active = false;
@@ -130,6 +132,14 @@ contract EmploymentRecord is Owned {
             revert();
         }
     }
+
+    function checkPayouts( ) public onlyOwner {
+        // May cause problems in the future for scalability
+        for (uint i = 0; i < paymentIndex.length; i++) {
+            Payment p = Payment(paymentIndex[i]);
+            p.setPayCondition();
+        }
+    }
 }
 
 
@@ -181,8 +191,8 @@ contract Payment is Owned {
         require(!payCondition);
 
         // Notes on ether transfer: https://vomtom.at/solidity-send-vs-transfer/
-        // take from owner
-        // send to owner
+        // take from owner: Done previously either at construction or after successful payment
+        // send to owner: Done now 
 
         PaymentEvent(owner,receiver,pay,now);
     }
