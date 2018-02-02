@@ -14,7 +14,7 @@
 
 <div class="container">
 
-    <h1>Create Payment<h2>
+    <h1>Create Payment<h1>
 
     <p id="SuccessfulPayment" style="display: none">Success!</p>
 
@@ -39,12 +39,12 @@
     var createPaymentEvent = Payroll.CreatePaymentEvent();
     createPaymentEvent.watch(function(error,result) {
         if (error) {
-            $("#SuccessfulPayment").innerHTML = "Failure";
+            document.getElementById("SuccessfulPayment").innerHTML = "Failure";
         }
-        $("#SuccessfulPayment").style = "display: block";
+        document.getElementById("SuccessfulPayment").style = "display: block";
     });
 
-    $("#SubmitPayment").click(function() {
+    document.getElementById("SubmitPayment").onclick(function() {
         Payroll.createPayment();
     });
 </script>
