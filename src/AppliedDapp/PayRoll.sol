@@ -132,14 +132,15 @@ contract EmploymentRecord is Owned {
             revert();
         }
     }
-
+/*
     function checkPayouts( ) public onlyOwner {
         // May cause problems in the future for scalability
         for (uint i = 0; i < paymentIndex.length; i++) {
             Payment p = Payment(paymentIndex[i]);
-            p.setPayCondition();
+            p.payout();
         }
     }
+*/
 }
 
 
@@ -169,6 +170,7 @@ contract Payment is Owned {
     uint frequency;
     uint endTime;
 
+    uint payCounter;
     uint lastUpdate;
     bool payCondition;
 
@@ -185,15 +187,20 @@ contract Payment is Owned {
       PaymentCreationEvent(owner,_receiver,_pay);
     }
 
-    function setPayCondition( ) public;
+    function setPayCondition( ) private;
 
+    // Notes on ether transfer: https://vomtom.at/solidity-send-vs-transfer/
+    // Note contracts need initial ether: https://ethereum.stackexchange.com/questions/24744/getting-opcode-error-in-remix-using-transfer-method
+    // take from owner: Done previously either at construction or after successful payment
+    // send to owner: Done now
     function payout( ) public payable onlyOwner {
+        setPayCondition();
         require(!payCondition);
 
-        // Notes on ether transfer: https://vomtom.at/solidity-send-vs-transfer/
-        // take from owner: Done previously either at construction or after successful payment
-        // send to owner: Done now 
-
+        receiver.transfer(pay);
+        payCounter++;
+        payCondition = false;
+        // Security Concerns: http://www.blunderingcode.com/writing-secure-solidity/
         PaymentEvent(owner,receiver,pay,now);
     }
 }
@@ -204,8 +211,10 @@ contract PermanentPay is Payment {
     function PermanentPay(address _sender, address _receiver, uint _pay, uint _frequency) public Payment(_sender,_receiver, _pay, _frequency, 0) { }
 
     // Based off of frequency
-    function setPayCondition( ) public {
-        payCondition = true;
+    function setPayCondition( ) private {
+        if (frequency <= lastUpdate - now) {
+            payCondition = true;
+        }
     }
 }
 
@@ -213,7 +222,7 @@ contract PermanentPay is Payment {
 contract CasualPay is Payment {
     function CasualPay(address _sender, address _receiver, uint _pay) public Payment(_sender,_receiver,_pay,0,0) { }
 
-    function setPayCondition( ) public onlyOwner {
+    function setPayCondition( ) private {
       payCondition = true;
     }
 }
@@ -223,8 +232,10 @@ contract ContractPay is Payment {
     function ContractPay(address _sender, address _receiver, uint _pay, uint _payFrequency, uint _endTime) public Payment(_sender,_receiver,_pay,_payFrequency,_endTime) { }
 
     // Based off of frequency and contract endTime
-    function setPayCondition( ) public {
-        payCondition = true;
+    function setPayCondition( ) private {
+        if (frequency <= lastUpdate - now && now < endTime) {
+            payCondition = true;
+        }
     }
 
     function earlyTermination( ) public onlyOwner {
