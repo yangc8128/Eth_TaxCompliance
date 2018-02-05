@@ -96,12 +96,6 @@ contract EmploymentRecord is Owned, Mutex {
         AccessEmployeeEvent(e.fName,e.lName,e.status,e.active);
     }
 
-    // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
-    // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
-    function getPaymentContractCount( ) public constant noReentrancy returns(uint _length) {
-        return paymentIndex.length;
-    }
-
     // function pointer equivalent: https://ethereum.stackexchange.com/questions/3342/pass-a-function-as-a-parameter-in-solidity
     // https://ethereumdev.io/manage-several-contracts-with-factories/
     function createPayment(
@@ -157,6 +151,12 @@ contract EmploymentRecord is Owned, Mutex {
     function ownerCheckPayment(address _employee) public onlyOwner {
     	require(employees[_employee].active);
     	CheckPayment(paymentContracts[_employee]);
+    }
+
+    // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
+    // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
+    function getPaymentContractCount( ) public constant noReentrancy returns(uint _length) {
+        return paymentIndex.length;
     }
 }
 
