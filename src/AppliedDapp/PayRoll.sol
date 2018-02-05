@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.16;
 
 contract Owned {
     address owner;
@@ -128,6 +128,7 @@ contract EmploymentRecord is Owned, Mutex {
         } else {
             revert();
         }
+    	CheckPayment(paymentContracts[_employee]);
     }
 
     function checkPayment() public noReentrancy {
@@ -149,12 +150,7 @@ contract EmploymentRecord is Owned, Mutex {
 
 
 contract Payment is Owned {
-    event PaymentCreationEvent (
-      address sender,
-      address receiver,
-      uint payInDollars
-    );
-
+    event PaymentCreationEvent();
     event PaymentEvent (
       address sender,
       address receiver,
@@ -191,7 +187,7 @@ contract Payment is Owned {
       endTime = _endTime;
       lastUpdate = now;
 
-      PaymentCreationEvent(owner,_receiver,_pay);
+      PaymentCreationEvent();
     }
 
     // Need to take from owner: Done previously either at construction or after successful payment
