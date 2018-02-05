@@ -54,6 +54,7 @@ contract EmploymentRecord is Owned, Mutex {
         bool active;
     }
 
+    // maps employee address to a employee struct
     mapping (address => Employee) public employees;
     address[] public employeeAccts;
 
@@ -109,8 +110,7 @@ contract EmploymentRecord is Owned, Mutex {
         require(!p.getActive());
 
         // Creating different payment contracts based off the employment types
-        if (_status == EmploymentRecord.EmploymentType.PERM
-        		|| _status == EmploymentRecord.EmploymentType.OWNER) {
+        if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
             PermanentPay _perm = new PermanentPay(_sender,_employee,_pay,_frequency);
             paymentContracts[_employee] = _perm;
             paymentIndex.push(_perm);
@@ -142,7 +142,7 @@ contract EmploymentRecord is Owned, Mutex {
     	CheckPayment(paymentContracts[_employee]);
     }
 
-    function getPaymentContractCount( ) public constant noReentrancy returns(uint _length) {
+    function getPaymentContractCount( ) public constant returns(uint _length) {
         return paymentIndex.length;
     }
 }
@@ -239,7 +239,7 @@ contract PermanentPay is Payment {
     { }
 
     // Based off of frequency
-    function setPayCondition( ) private returns(uint){
+    function setPayCondition( ) private returns(uint) {
         if (frequency <= lastUpdate - now) {
             payCondition = true;
         }
@@ -256,7 +256,7 @@ contract CasualPay is Payment {
     	public
  	{ }
 
-    function setPayCondition( ) private returns(uint){
+    function setPayCondition( ) private returns(uint) {
       payCondition = true;
       return 1;
     }
@@ -272,11 +272,11 @@ contract ContractPay is Payment {
     	uint _endTime
     )
 		Payment(_sender,_receiver,_pay,_frequency,_endTime)
-    	public
+    	public 
  	{ }
 
     // Based off of frequency and contract endTime
-    function setPayCondition( ) private returns(uint){
+    function setPayCondition( ) private returns(uint) {
         if (frequency <= lastUpdate - now && now < endTime) {
             payCondition = true;
         }
