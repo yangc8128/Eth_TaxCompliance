@@ -1,13 +1,5 @@
 pragma solidity ^0.4.11;
 
-/*
-https://ethereum.stackexchange.com/questions/19341/address-send-vs-address-transfer-best-practice-usage
-https://vomtom.at/solidity-send-vs-transfer/
-https://zupzup.org/smart-contract-interaction/
-https://github.com/PeterBorah/smart-contract-security-examples/issues/3
-http://vessenes.com/more-ethereum-attacks-race-to-empty-is-the-real-deal/
-*/
-
 contract Owned {
     address owner;
     bool active;
@@ -42,7 +34,6 @@ contract Mutex {
 }
 
 
-// Enums in Solidity: https://ethereum.stackexchange.com/questions/24086/how-do-enums-work/24087
 contract EmploymentRecord is Owned, Mutex {
 
     event EmployeeCreation( );
@@ -96,8 +87,6 @@ contract EmploymentRecord is Owned, Mutex {
         AccessEmployeeEvent(e.fName,e.lName,e.status,e.active);
     }
 
-    // function pointer equivalent: https://ethereum.stackexchange.com/questions/3342/pass-a-function-as-a-parameter-in-solidity
-    // https://ethereumdev.io/manage-several-contracts-with-factories/
     function createPayment(
     	EmploymentType _status,
     	address _sender,
@@ -116,7 +105,6 @@ contract EmploymentRecord is Owned, Mutex {
         if (!employees[_employee].active) {revert();}
 
         // Check if there already exists a Payment contract, that is still active
-        // Notes on require: https://medium.com/blockchannel/the-use-of-revert-assert-and-require-in-solidity-and-the-new-revert-opcode-in-the-evm-1a3a7990e06e
         Payment p = Payment(paymentContracts[_employee]);
         require(!p.getActive());
 
@@ -143,18 +131,17 @@ contract EmploymentRecord is Owned, Mutex {
     }
 
     function checkPayment() public noReentrancy {
-    	// Ensuring that only the exact employee can access
+    	// Ensuring that only the exact employee can access and that the employee is active
     	require(employees[msg.sender].active);
     	CheckPayment(paymentContracts[msg.sender]);
     }
 
     function ownerCheckPayment(address _employee) public onlyOwner {
+    	// Ensuring the only the employee is active
     	require(employees[_employee].active);
     	CheckPayment(paymentContracts[_employee]);
     }
 
-    // https://ethereum.stackexchange.com/questions/27777/deploying-contract-factory-structure-in-remix
-    // https://blog.aragon.one/advanced-solidity-code-deployment-techniques-dc032665f434
     function getPaymentContractCount( ) public constant noReentrancy returns(uint _length) {
         return paymentIndex.length;
     }
@@ -168,12 +155,11 @@ contract Payment is Owned {
       uint payInDollars
     );
 
-    // https://ethereum.stackexchange.com/questions/18192/how-do-you-work-with-date-and-time-on-ethereum-platform
     event PaymentEvent (
       address sender,
       address receiver,
       uint payInDollars,
-      uint datePaid // LOOK INTO FURTHER (timestamp, now)
+      uint datePaid
     );
 
     // NONE, WEEKLY, BI_WEEKLY, SEMI_MONTHLY, MONTHLY
@@ -188,8 +174,6 @@ contract Payment is Owned {
     // Used for the actual payout
     uint lastUpdate;
     bool payCondition;
-
-    // address, payPerFrequency, frequency, endTime
 
     function Payment(
     	address _sender,
@@ -210,8 +194,6 @@ contract Payment is Owned {
       PaymentCreationEvent(owner,_receiver,_pay);
     }
 
-    // Notes on ether transfer: https://vomtom.at/solidity-send-vs-transfer/
-    // Note contracts need initial ether: https://ethereum.stackexchange.com/questions/24744/getting-opcode-error-in-remix-using-transfer-method
     // Need to take from owner: Done previously either at construction or after successful payment
     function withdraw( ) public payable {
     	// Withdrawal Authorization, Employee
@@ -223,7 +205,7 @@ contract Payment is Owned {
         receiver.transfer(pay);
         payCounter++;
         payCondition = false;
-        // Security Concerns: http://www.blunderingcode.com/writing-secure-solidity/
+
         PaymentEvent(owner,receiver,pay,now);
     }
 
@@ -246,7 +228,6 @@ contract Payment is Owned {
 
 
 contract PermanentPay is Payment {
-    // http://solidity.readthedocs.io/en/develop/contracts.html#arguments-for-base-constructors
     function PermanentPay(
     	address _sender,
     	address _receiver,
