@@ -14,7 +14,9 @@
 
 <div class="container">
 
-    <h1>Create Payment<h2>
+    <h1>Create Payment<h1>
+
+    <p id="SuccessfulPayment" style="display: none">Success!</p>
 
     <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
     <input id="employeeAddress" type="text">
@@ -29,4 +31,21 @@
     <label for="contractEndTime" class="col-lg-2 control-label">Contract End Time</label>
     <input id="contractEndTime" type="number">
 
+    <button id="SubmitPayment"></button>
+
 </div>
+
+<script>
+    var createPaymentEvent = Payroll.CreatePaymentEvent();
+    createPaymentEvent.watch(function(error,result) {
+        if (error) {
+            document.getElementById("SuccessfulPayment").innerHTML = "Failure";
+        }
+        document.getElementById("SuccessfulPayment").style = "display: block";
+    });
+
+    document.getElementById("SubmitPayment").onclick(function() {
+        Payroll.createPayment();
+    });
+</script>
+</html>
