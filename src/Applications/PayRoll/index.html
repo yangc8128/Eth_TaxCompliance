@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <!-- Prevented the load function
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+
+    <script>
+    // Important HTML https://stackoverflow.com/questions/8988855/include-another-html-file-in-a-html-file
+    $(function() {
+        $("#Home").load("DecideAction.html");
+    });
+    </script>
+</head>
+
+<body>
+    <!--https://stackoverflow.com/questions/1992114/how-do-you-create-a-hidden-div-that-doesnt-create-a-line-break-or-horizontal-sp -->
+    <div id="Home"></div>
+
+    <script>
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        // Ethereum Account provided by TestRPC
+        web3.eth.defaultAccount = web3.eth.accounts[0];
+        
+        // Connecting to the Smart Contract
+        var PayrollContract = web3.eth.contract("PASTE ABI HERE!");
+        var Payroll = PayrollContract.at('CONTRACT ADDRESS');
+        console.log(Payroll);
+    </script>
+
+</body>
+</html>

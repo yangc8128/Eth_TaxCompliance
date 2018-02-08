@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+
+    <script>
+        $(function() {
+            $("#CreatePayment").load("CreatePayment.html");
+        });
+    </script>
+</head>
+
+
+<body>
+    <div id="HeadPayment" class="container">
+
+        <h1>Actions on Payments</h1>
+    
+        <button id="button_DisplayCreatePayment">Create Payment</button>
+        <!-- <button id="button8">Invalidate Payment</button>
+        <button id="button9">Replace Payment</button> -->
+    
+    </div>
+    <div id="CreatePayment" style="display: none;"></div>
+
+    <script>
+        document.getElementById("button_DisplayCreatePayment").onclick = function () {
+            document.getElementById("HeadPayment").style = "display: none;";
+            document.getElementById("CreatePayment").style = "display: block;";
+        };
+    /*
+        document.getElementById("button2").onclick = function () {
+            //location.href = "THE PAGE";
+        };
+    
+        document.getElementById("button3").onclick = function () {
+            //location.href = "THE PAGE";
+        };
+    */
+    </script>
+</body>
+</html>
