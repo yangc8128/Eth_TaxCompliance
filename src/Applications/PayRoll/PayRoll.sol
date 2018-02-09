@@ -38,8 +38,8 @@ contract EmploymentRecord is Owned, Mutex {
     event EmployeeCreation( );
     event CheckPayment(address paymentContract);
     event AccessEmployeeEvent(
-        string fName,
-        string lName,
+        bytes16 fName,
+        bytes16 lName,
         EmploymentType status,
         bool active
     );
@@ -47,8 +47,8 @@ contract EmploymentRecord is Owned, Mutex {
     enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
 
     struct Employee {
-        string fName;
-        string lName;
+        bytes16 fName;
+        bytes16 lName;
         EmploymentType status;
         bool active;
     }
@@ -64,8 +64,8 @@ contract EmploymentRecord is Owned, Mutex {
 
     function setEmployee(
     	address _addr,
-    	string _fName,
-    	string _lName,
+    	bytes16 _fName,
+    	bytes16 _lName,
     	EmploymentType _status
     )
     	public
@@ -91,9 +91,9 @@ contract EmploymentRecord is Owned, Mutex {
     	EmploymentType _status,
     	address _sender,
     	address _employee,
-    	uint _pay,
-    	uint _frequency,
-    	uint _end
+    	uint256 _pay,
+    	uint256 _frequency,
+    	uint256 _end
     )
     	public
     	onlyOwner
@@ -142,7 +142,7 @@ contract EmploymentRecord is Owned, Mutex {
     	CheckPayment(paymentContracts[_employee]);
     }
 
-    function getPaymentContractCount( ) public constant returns(uint _length) {
+    function getPaymentContractCount( ) public constant returns(uint256 _length) {
         return paymentIndex.length;
     }
 }
@@ -153,29 +153,29 @@ contract Payment is Owned {
     event PaymentEvent (
       address sender,
       address receiver,
-      uint payInDollars,
-      uint datePaid
+      uint256 payInDollars,
+      uint256 datePaid
     );
 
     // NONE, WEEKLY, BI_WEEKLY, SEMI_MONTHLY, MONTHLY
-    uint[] public FREQUENCIES = [0,604800,302400,1314871,2629743];
+    uint256[] public FREQUENCIES = [0,604800,302400,1314871,2629743];
 
     // Contract members
     address sender; address receiver;
     // Representative of onetime/wage/salary pay per frequency timespan
-    uint pay;
-    uint frequency; uint endTime; uint payCounter;
+    uint256 pay;
+    uint256 frequency; uint256 endTime; uint256 payCounter;
 
     // Used for the actual payout
-    uint lastUpdate;
+    uint256 lastUpdate;
     bool payCondition;
 
     function Payment(
     	address _sender,
     	address _receiver,
-    	uint _pay,
-    	uint _frequency,
-    	uint _endTime
+    	uint256 _pay,
+    	uint256 _frequency,
+    	uint256 _endTime
     )
     	public
     {
@@ -218,7 +218,7 @@ contract Payment is Owned {
         PaymentEvent(owner,receiver,pay,now);
     }
 
-    function setPayCondition( ) private returns(uint);
+    function setPayCondition( ) private returns(uint256);
 }
 
 
@@ -226,15 +226,15 @@ contract PermanentPay is Payment {
     function PermanentPay(
     	address _sender,
     	address _receiver,
-    	uint _pay,
-    	uint _frequency
+    	uint256 _pay,
+    	uint256 _frequency
     )
     	Payment(_sender,_receiver, _pay, _frequency, 0)
     	public
     { }
 
     // Based off of frequency
-    function setPayCondition( ) private returns(uint) {
+    function setPayCondition( ) private returns(uint256) {
         if (frequency <= lastUpdate - now) {
             payCondition = true;
         }
@@ -245,13 +245,13 @@ contract CasualPay is Payment {
     function CasualPay(
     	address _sender,
     	address _receiver,
-    	uint _pay
+    	uint256 _pay
     )
     	Payment(_sender,_receiver,_pay,0,0)
     	public
  	{ }
 
-    function setPayCondition( ) private returns(uint) {
+    function setPayCondition( ) private returns(uint256) {
       payCondition = true;
       return 1;
     }
@@ -262,16 +262,16 @@ contract ContractPay is Payment {
     function ContractPay(
     	address _sender,
     	address _receiver,
-    	uint _pay,
-    	uint _frequency,
-    	uint _endTime
+    	uint256 _pay,
+    	uint256 _frequency,
+    	uint256 _endTime
     )
 		Payment(_sender,_receiver,_pay,_frequency,_endTime)
     	public 
  	{ }
 
     // Based off of frequency and contract endTime
-    function setPayCondition( ) private returns(uint) {
+    function setPayCondition( ) private returns(uint256) {
         if (frequency <= lastUpdate - now && now < endTime) {
             payCondition = true;
         }
