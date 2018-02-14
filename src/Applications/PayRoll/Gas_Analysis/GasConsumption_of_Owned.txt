@@ -1,0 +1,17 @@
+Operation         Gas           Description                 #
+
+ADD/SUB           3             Arithmetic operation        #1 + 1
+MUL/DIV           5             Arithmetic operation        #6 + 5
+ADDMOD/MULMOD     8             Arithmetic operation        #0 + 0
+AND/OR/XOR        3             Bitwise logic operation     #14 + 3 + 0
+LT/GT/SLT/SGT/EQ  3             Comparison operation        #1 + 0 + 0 + 0 + 5
+POP               2             Stack operation             #6
+PUSH/DUP/SWAP     3             Stack operation             #72 + 30 + 24
+MLOAD/MSTORE      3             Memory operation            #2 + 3
+JUMP              8             Unconditional jump          #21
+JUMPI             10            Conditional jump            #10
+SLOAD             200           Storage operation           #7
+SSTORE            5,000/20,000  Storage operation           #3
+BALANCE           400           Get balance of an account   #0
+CREATE            32,000        Create a new account using CREATE   #0
+CALL              25,000        Create a new account using CALL     #0
