@@ -2,7 +2,7 @@ pragma solidity ^0.4.16;
 
 contract Owned {
     address owner;
-    bool active;
+    bool public active;
 
     function Owned( ) public {
         owner = msg.sender;
@@ -14,10 +14,7 @@ contract Owned {
         _;
     }
 
-    function getActive( ) public constant returns(bool) { return active; }
-
     function stop( ) public onlyOwner { active = false; }
-
     function close( ) public onlyOwner { selfdestruct(owner); }
 }
 
@@ -35,6 +32,7 @@ contract Mutex {
 
 
 contract EmploymentRecord is Owned, Mutex {
+    enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
     event EmployeeCreation( );
     event CheckPayment(address paymentContract);
     event AccessEmployeeEvent(
@@ -43,9 +41,6 @@ contract EmploymentRecord is Owned, Mutex {
         EmploymentType status,
         bool active
     );
-
-    enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
-
     struct Employee {
         bytes16 fName;
         bytes16 lName;
@@ -63,13 +58,13 @@ contract EmploymentRecord is Owned, Mutex {
     address[] public paymentIndex;
 
     function setEmployee(
-    	address _addr,
-    	bytes16 _fName,
-    	bytes16 _lName,
-    	EmploymentType _status
+        address _addr,
+        bytes16 _fName,
+        bytes16 _lName,
+        EmploymentType _status
     )
-    	public
-    	onlyOwner
+        public
+        onlyOwner
     {
         require(employees[_addr].active == false);
 
@@ -88,16 +83,16 @@ contract EmploymentRecord is Owned, Mutex {
     }
 
     function createPayment(
-    	EmploymentType _status,
-    	address _sender,
-    	address _employee,
-    	uint256 _pay,
-    	uint256 _frequency,
-    	uint256 _end
+        EmploymentType _status,
+        address _sender,
+        address _employee,
+        uint256 _pay,
+        uint256 _frequency,
+        uint256 _end
     )
-    	public
-    	onlyOwner
-    	returns(address _newPayment)
+        public
+        onlyOwner
+        returns(address _newPayment)
     {
         // Ensuring that gasSize is not overflowed when going over every individual payouts
         if (paymentIndex.length > 100) {revert();}
@@ -106,7 +101,7 @@ contract EmploymentRecord is Owned, Mutex {
 
         // Check if there already exists a Payment contract, that is still active
         Payment p = Payment(paymentContracts[_employee]);
-        require(!p.getActive());
+        require(!p.active());
 
         // Creating different payment contracts based off the employment types
         if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
@@ -127,19 +122,19 @@ contract EmploymentRecord is Owned, Mutex {
         } else {
             revert();
         }
-    	CheckPayment(paymentContracts[_employee]);
+        CheckPayment(paymentContracts[_employee]);
     }
 
     function checkPayment() public noReentrancy {
-    	// Ensuring that only the exact employee can access and that the employee is active
-    	require(employees[msg.sender].active);
-    	CheckPayment(paymentContracts[msg.sender]);
+        // Ensuring that only the exact employee can access and that the employee is active
+        require(employees[msg.sender].active);
+        CheckPayment(paymentContracts[msg.sender]);
     }
 
     function ownerCheckPayment(address _employee) public onlyOwner {
-    	// Ensuring the only the employee is active
-    	require(employees[_employee].active);
-    	CheckPayment(paymentContracts[_employee]);
+        // Ensuring the only the employee is active
+        require(employees[_employee].active);
+        CheckPayment(paymentContracts[_employee]);
     }
 
     function getPaymentContractCount( ) public constant returns(uint256 _length) {
@@ -158,7 +153,7 @@ contract Payment is Owned {
     );
 
     // NONE, WEEKLY, BI_WEEKLY, SEMI_MONTHLY, MONTHLY
-    uint256[] public FREQUENCIES = [0,604800,302400,1314871,2629743];
+    uint256[] private FREQUENCIES = [0,604800,302400,1314871,2629743];
 
     // Contract members
     address sender; address receiver;
@@ -171,13 +166,13 @@ contract Payment is Owned {
     bool payCondition;
 
     function Payment(
-    	address _sender,
-    	address _receiver,
-    	uint256 _pay,
-    	uint256 _frequency,
-    	uint256 _endTime
+        address _sender,
+        address _receiver,
+        uint256 _pay,
+        uint256 _frequency,
+        uint256 _endTime
     )
-    	public
+        public
     {
       sender = _sender;
       receiver = _receiver;
@@ -191,8 +186,8 @@ contract Payment is Owned {
 
     // Need to take from owner: Done previously either at construction or after successful payment
     function withdraw( ) public payable {
-    	// Withdrawal Authorization, Employee
-    	require(msg.sender == receiver);
+        // Withdrawal Authorization, Employee
+        require(msg.sender == receiver);
         setPayCondition();
         require(payCondition);
 
@@ -205,8 +200,8 @@ contract Payment is Owned {
     }
 
     function payout( ) public payable {
-    	// Payout Authorization, Employer
-    	require(msg.sender == sender);
+        // Payout Authorization, Employer
+        require(msg.sender == sender);
         setPayCondition();
         require(payCondition);
 
@@ -224,13 +219,13 @@ contract Payment is Owned {
 
 contract PermanentPay is Payment {
     function PermanentPay(
-    	address _sender,
-    	address _receiver,
-    	uint256 _pay,
-    	uint256 _frequency
+        address _sender,
+        address _receiver,
+        uint256 _pay,
+        uint256 _frequency
     )
-    	Payment(_sender,_receiver, _pay, _frequency, 0)
-    	public
+        Payment(_sender,_receiver, _pay, _frequency, 0)
+        public
     { }
 
     // Based off of frequency
@@ -238,18 +233,19 @@ contract PermanentPay is Payment {
         if (frequency <= lastUpdate - now) {
             payCondition = true;
         }
+        return 0;
     }
 }
 
 contract CasualPay is Payment {
     function CasualPay(
-    	address _sender,
-    	address _receiver,
-    	uint256 _pay
+        address _sender,
+        address _receiver,
+        uint256 _pay
     )
-    	Payment(_sender,_receiver,_pay,0,0)
-    	public
- 	{ }
+        Payment(_sender,_receiver,_pay,0,0)
+        public
+     { }
 
     function setPayCondition( ) private returns(uint256) {
       payCondition = true;
@@ -260,21 +256,22 @@ contract CasualPay is Payment {
 
 contract ContractPay is Payment {
     function ContractPay(
-    	address _sender,
-    	address _receiver,
-    	uint256 _pay,
-    	uint256 _frequency,
-    	uint256 _endTime
+        address _sender,
+        address _receiver,
+        uint256 _pay,
+        uint256 _frequency,
+        uint256 _endTime
     )
-		Payment(_sender,_receiver,_pay,_frequency,_endTime)
-    	public 
- 	{ }
+        Payment(_sender,_receiver,_pay,_frequency,_endTime)
+        public 
+     { }
 
     // Based off of frequency and contract endTime
     function setPayCondition( ) private returns(uint256) {
         if (frequency <= lastUpdate - now && now < endTime) {
             payCondition = true;
         }
+        return 0;
     }
 }
 
