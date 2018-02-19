@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+
+    <script>
+        $(function() {
+            $("#ActionsEmployees").load("ActionsOnEmployee.html");
+            $("#ActionsPayments").load("ActionsOnPayment.html");
+        });
+    </script>
+
+</head>
+
+<body>
+    <div id="Head" class="container">
+
+        <h1>Decide Action</h1>
+    
+        <button id="button_DisplayEmployeeAction">Action on Employees</button>
+        <button id="button_DisplayPaymentAction">Action on Payments</button>
+    
+    </div>
+    <div id="ActionsEmployees" style="display: none;"></div>
+    <div id="ActionsPayments" style="display: none;"></div>
+    
+    <script>
+        document.getElementById("button_DisplayEmployeeAction").onclick = function () {
+            document.getElementById("Head").style = "display: none;";
+            document.getElementById("ActionsEmployees").style = "display: block;";
+        };
+
+        document.getElementById("button_DisplayPaymentAction").onclick = function () {
+            document.getElementById("Head").style = "display: none;";
+            document.getElementById("ActionsPayments").style = "display: block;";
+        };
+    </script>
+</body>
+</html>

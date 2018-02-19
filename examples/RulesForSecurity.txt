@@ -1,0 +1,33 @@
+The Rules for safe smart contract coding
+From: http://www.blunderingcode.com/writing-secure-solidity/
+
+1) Each public function can only make one external call, and it's the very last step
+2) Don't use tx.origin
+
+To make sure you don't accidentally make other external calls, also do this:
+3) Only make external calls from public functions
+4) No function can call a public function.
+
+Specifically for transferring ether:
+5) Use __.value() instead of send().
+    A lot of people are recommending the opposite right now, either because
+    they're not using the rules above, or just as an excess of caution against
+    major failure like the DAO. But if you use .value() the user can include
+    however much gas is required, instead of losing ether like the ill-fated
+    Kings of the Ether Throne.
+6) Avoid sending ether in a function that does other important work.
+    If you can provide a withdraw() function and only send ether to msg.sender.
+    In a few cases, like wallet contracts, that won't be an option and you'll
+    need a function like transferTo(address recipient, uint amount). But try to
+    always use functions where the transfer is the main point, and any other
+    work is a side effect of the ether transfer (e.g. updating the user's
+    balance in the contract's internal ledger).
+7) Always check whether the transfer was successful, and if not, throw.
+    Rule 7 depends on the previous rules. Throwing would be wrong if you were
+    sending to a bunch of addresses in a loop, but that would violate rule 1.
+    It's also wrong if the function sending ether does other work that
+    shouldn't be blocked from happening, but violates rule 6.
+
+General rule if 1-7 cannot be followed
+8) Use a mutex to prevent callbacks
+(but for now, only if you're not doing an explicit return anywhere)

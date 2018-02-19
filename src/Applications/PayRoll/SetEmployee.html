@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+
+        <h1>Set Employee</h1>
+    
+        <label for="employeeAddress" class="col-lg-2 control-label">Employee Public Address</label>
+        <input id="employeeAddress" type="text">
+    
+        <label for="firstName" class="col-lg-2 control-label">Employee First Name</label>
+        <input id="firstName" type="text">
+    
+        <label for="lastName" class="col-lg-2 control-label">Employee Last Name</label>
+        <input id="lastName" type="text">
+    
+        <label for="EmploymentType" class="col-lg-2 control-label">Employeement Type</label>
+        <input id="EmploymentType" type="text">
+    
+        <button id="button_SetEmployee">Set Employee</button>
+    
+    </div>
+
+    <script>
+        var EmployeeCreation = Payroll.setEmployee( );
+
+        $("#button_SetEmployee").click(function() {
+            // https://www.w3schools.com/js/tryit.asp?filename=tryjs_button_value
+            var employmentType = document.getElementById("EmploymentType").value;
+            var intEmployeeType;
+
+            // Determining what to put in for the type
+            if (employmentType === "Owner") {
+                intEmployeeType = 0;
+            } else if (employmentType === "Permanent") {
+                intEmployeeType = 1;
+            } else if (employementType === "Casual") {
+                intEmployeeType = 2;
+            } else if (employmentType = "Contract") {
+                intEmployeeType = 3;
+            } else {
+                return;
+            }
+            Payroll.setEmployee($("#employeeAddress").val(), $("#firstName").val(), $("#lastName").val(), $(intEmployeeType).val());
+        });
+    </script>
+</body>
+</html>
