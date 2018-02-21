@@ -22,102 +22,94 @@ contract Mutex {
 }
 
 
-contract BusinessTaxation is Owned {
-    enum BusinessType {CHURCH,LLC}
-    event BusinessCreationEvent( );
-    struct Business {
+// Expects a TaxEntity enum for types to be made when implemented
+contract TaxAgency is Owned {
+    event TaxEntityCreation( );
+
+    struct TaxEntity {
         bool isDomestic;
+        bool isIndividual;
         bool active;
-        BusinessType busType;
+        uint entityType;
+        //uint[] taxIds;
         uint taxId;
-        bytes32 busName;
+        bytes32 taxEntityName;
     }
+    /*
+    struct TaxReturn {
+        uint year;
+        address taxReturnId;
+    }
+    struct TaxReturns {
+        TaxReturn[] taxReturns;
+    }
+    // Consider: Manually filling the parts into memory instead of utilizing a refernce variable
+    // https://ethereum.stackexchange.com/questions/12611/solidity-filling-a-struct-array-containing-itself-an-array
+    */
 
-    // maps business address to a business struct
-    mapping (address => Business) public businesses;
-    address[] public businessIndex;
 
-    function setBusiness(
+    mapping (address => TaxEntity) public taxEntities;
+    //mapping (address => address[]) public taxReturns;
+    address[] public taxEntityIndex;
+
+    function setTaxEntity(
         address _addr,
         bool _isDomestic,
-        BusinessType _busType,
+        bool _isIndividual,
+        uint _type,
         uint _taxId,
-        bytes32 _busName
+        bytes32 _name
     )
         public
         onlyOwner
     {
-        require(businesses[_addr].active == false);
+        require(taxEntities[_addr].active == false);
 
-        // Creating new Business and recording the address
-        Business memory b = Business(_isDomestic,true,_busType,_taxId,_busName);
-        businesses[_addr] = b;
-        businessIndex.push(_addr);
+        TaxEntity memory b = TaxEntity(_isDomestic,_isIndividual,true,_type,_taxId,_name);
+        taxEntities[_addr] = b;
+        taxEntityIndex.push(_addr);
 
-        BusinessCreationEvent();
+        TaxEntityCreation();
     }
-    function updateBusiness() public;
-}
-
-
-contract IndividualTaxation is Owned {
-    enum IndividualType {RESIDENT,ALIEN}
-    struct Individual {
-        bool isDomestic;
-        bool active;
-        IndividualType indivType;
-        uint taxId;
-        bytes32 indivName;
-    }
-    mapping (address => Individual) public individuals;
-    address[] public individualIndex;
-
-    function setIndividual(
-        address _addr,
-        bool _isDomestic,
-        IndividualType _indivType,
-        uint _taxId,
-        bytes32 _indivName
-    )
-        public
-        onlyOwner
-    {
-        //require(employees[_addr].active == false);
-
-        Individual memory b = Individual(_isDomestic,true,_indivType,_taxId,_indivName);
-        individuals[_addr] = b;
-
-        individualIndex.push(_addr);
-
-        //IndividualCreation();
-    }
-    function updateIndividual() public;
+    function updateTaxEntity() public;
     function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
 }
 
+//contract FederalTaxation is TaxAgency {}
+//contract StateTaxation is TaxAgency {}
 
-contract FederalTaxation is BusinessTaxation, IndividualTaxation {
-    
-}
-
-
-contract StateTaxation is BusinessTaxation, IndividualTaxation {
-    
-}
-
+//https://ethereum.stackexchange.com/questions/29535/when-to-specify-uint-size
 contract TaxReturn is Owned {
+    enum TaxTypes {INCOME,CAPITAL,WINS,DIVIDENDS}
+
     uint taxOwed;
     uint taxRefund;
     uint taxableYear;
-    function returnTaxReturn() public pure returns(uint taxOwed, uint taxRefund) {
+    uint[4] itemizedTaxes;
+
+    function returnTaxReturn() public view returns(uint, uint) {
         return (taxOwed, taxRefund);
     }
 }
 
 contract Taxable is Owned {
+    event WithHoldingEvent( );
+
     address taxReturnId;
     uint withHolding;
+
     modifier taxableIncome {
         _;
+        // Report withholding
+
+        // Sending withholding amount
+        uint balanceBefore = this.balance;
+        taxReturnId.transfer(withHolding);
+        assert(this.balance == balanceBefore-withHolding);
+    }
+
+    function Taxable(address _addr, uint _withHold) public {
+        taxReturnId = _addr;
+        withHolding = _withHold;
     }
 }
