@@ -80,36 +80,54 @@ contract TaxAgency is Owned {
 
 //https://ethereum.stackexchange.com/questions/29535/when-to-specify-uint-size
 contract TaxReturn is Owned {
-    enum TaxTypes {INCOME,CAPITAL,WINS,DIVIDENDS}
+    enum TaxType {INCOME,CAPITAL,WINS,DIVIDENDS}
+
+    event FiledTaxItemEvent(
+        uint withHolding,
+        uint dateFiled,
+        TaxType taxType
+    );
 
     uint taxOwed;
     uint taxRefund;
     uint taxableYear;
     uint[4] itemizedTaxes;
 
+    // Requiring SafeMath
     function returnTaxReturn() public view returns(uint, uint) {
-        return (taxOwed, taxRefund);
+        return (taxOwed, abs(taxOwed - this.balance) );
     }
+    // Should this function exist?
+    function returnItemizedTaxReturn() external view;
+    function fileTaxItem(uint _withHolding, TaxType _type) external {
+        FiledTaxItemEvent(_withHolding,now,_type);
+    }
+    function taxRebate() external payable;
 }
 
 contract Taxable is Owned {
     event WithHoldingEvent( );
 
     address taxReturnId;
+    uint taxType;
     uint withHolding;
 
     modifier taxableIncome {
         _;
-        // Report withholding
-
         // Sending withholding amount
         uint balanceBefore = this.balance;
         taxReturnId.transfer(withHolding);
         assert(this.balance == balanceBefore-withHolding);
+
+        // Report withholding
+        // https://ethereum.stackexchange.com/questions/19380/external-vs-public-best-practices
+        // http://solidity.readthedocs.io/en/develop/types.html#members-of-addresses
+        assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(uint,uint)")), withHolding, taxType));
     }
 
-    function Taxable(address _addr, uint _withHold) public {
+    function Taxable(address _addr, uint _taxType, uint _withHold) public {
         taxReturnId = _addr;
+        taxType = _taxType;
         withHolding = _withHold;
     }
 }
