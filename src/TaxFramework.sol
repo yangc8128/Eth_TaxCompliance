@@ -1,26 +1,7 @@
 pragma solidity ^0.4.16;
 
-contract Owned {
-    function Owned() public { owner = msg.sender; }
-    address owner;
-    
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-}
-
-
-contract Mutex {
-    bool locked;
-    modifier noReentrancy() {
-        require(!locked);
-        locked = true;
-        _;
-        locked = false;
-    }
-}
-
+import "./SafeContract.sol";
+// http://solidity.readthedocs.io/en/develop/layout-of-source-files.html
 
 // Expects a TaxEntity enum for types to be made when implemented
 contract TaxAgency is Owned {
@@ -89,11 +70,11 @@ contract TaxReturn is Owned {
     );
 
     uint taxOwed;
-    uint taxRefund;
     uint taxableYear;
     uint[4] itemizedTaxes;
 
     // Requiring SafeMath
+    // https://ethereum.stackexchange.com/questions/25829/meaning-of-using-safemath-for-uint256
     function returnTaxReturn() public view returns(uint, uint) {
         return (taxOwed, abs(taxOwed - this.balance) );
     }
@@ -102,7 +83,9 @@ contract TaxReturn is Owned {
     function fileTaxItem(uint _withHolding, TaxType _type) external {
         FiledTaxItemEvent(_withHolding,now,_type);
     }
-    function taxRebate() external payable;
+    function taxRebate() external payable {
+
+    }
 }
 
 contract Taxable is Owned {
