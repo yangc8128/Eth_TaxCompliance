@@ -1,0 +1,28 @@
+Testing Payroll
+
+>> Testing on Remix <<
+< Testing Initialization >
+
+Create EmploymentRecord <Pass Gas Limits>, and add additional Wei for later processing and refilling
+    Remix Contract Creation
+Create an Employee entity, and map it
+    Remix Input for setEmployee
+Check for the existence of recently created Employee
+    Remix Input for accessEmployee
+Spawn a Payment with the Employee
+    Remix Contract Creation, via Remix Input for createPayment
+    - Check for Type: Owner
+    - Check for Type: Permanent
+    - Check for Type: Casual
+    - Check for Type: Contract
+Check for the existence of recently created Payment contract
+    Remix call to checkPayment via the Created Employee's Account
+    Remix call to ownerCheckPayment via the Employeer's Address
+
+< Testing Norm Use-Case: For a single Payment >
+
+payout
+withdraw
+
+< Testing Norm Use-Case: For a multi-Payment management >
+multi-payout
