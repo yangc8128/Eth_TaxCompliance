@@ -1,35 +1,7 @@
 pragma solidity ^0.4.16;
 
-contract Owned {
-    bool public active;
-    address owner;
-
-    function Owned( ) public {
-        active = true;
-        owner = msg.sender;
-    }
-    
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function stop( ) public onlyOwner { active = false; }
-    function close( ) public onlyOwner { selfdestruct(owner); }
-}
-
-
-// Used to prevent callback attacks
-contract Mutex {
-    bool locked;
-    modifier noReentrancy( ) {
-        require(!locked);
-        locked = true;
-        _;
-        locked = false;
-    }
-}
-
+import "../SafeContract.sol";
+import "../SafeMath.sol";
 
 contract EmploymentRecord is Owned, Mutex {
     enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
