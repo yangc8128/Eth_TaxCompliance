@@ -21,69 +21,103 @@ contract Mutex {
     }
 }
 
-/*
- * If there is a need to reuse a identification number
- * there is no need to copy it, just set it from a function
- */
 
-// Associated with in context of US taxing agencies (State)
-contract StateBusinessLicensing is Owned {
+contract BusinessTaxation is Owned {
     enum BusinessType {CHURCH,LLC}
+    event BusinessCreationEvent( );
     struct Business {
-        uint stateTaxId;
         bool isDomestic;
+        bool active;
         BusinessType busType;
+        uint taxId;
+        bytes32 busName;
     }
+
+    // maps business address to a business struct
     mapping (address => Business) public businesses;
     address[] public businessIndex;
 
     function setBusiness(
         address _addr,
-        uint _stateTaxId,
         bool _isDomestic,
-        BusinessType _busType
+        BusinessType _busType,
+        uint _taxId,
+        bytes32 _busName
     )
         public
         onlyOwner
     {
-    
-        Business memory b = Business(_stateTaxId, _isDomestic, _busType);
+        require(businesses[_addr].active == false);
+
+        // Creating new Business and recording the address
+        Business memory b = Business(_isDomestic,true,_busType,_taxId,_busName);
         businesses[_addr] = b;
-
         businessIndex.push(_addr);
+
+        BusinessCreationEvent();
     }
+    function updateBusiness() public;
 }
 
-/*
- * Taxable Entity:
- * Must have an ID
- * Must have a boolean determining Domestic/Foreign
- * Must have a Type
- */
-contract CitizenTaxation is Owned {
-    struct Citizen {
-        int individualTaxId;
-        bool isDomestic;
-    }
-    mapping (address => Citizen) citizens;
-    address[] public citizenIndex;
 
-    function setCitizen(
+contract IndividualTaxation is Owned {
+    enum IndividualType {RESIDENT,ALIEN}
+    struct Individual {
+        bool isDomestic;
+        bool active;
+        IndividualType indivType;
+        uint taxId;
+        bytes32 indivName;
+    }
+    mapping (address => Individual) public individuals;
+    address[] public individualIndex;
+
+    function setIndividual(
         address _addr,
-        int _individualTID,
-        bool _isDomestic
+        bool _isDomestic,
+        IndividualType _indivType,
+        uint _taxId,
+        bytes32 _indivName
     )
         public
         onlyOwner
     {
-        Citizen memory c = Citizen(_individualTID,_isDomestic);
-        citizens[_addr] = c;
+        //require(employees[_addr].active == false);
 
-        citizenIndex.push(_addr);
+        Individual memory b = Individual(_isDomestic,true,_indivType,_taxId,_indivName);
+        individuals[_addr] = b;
+
+        individualIndex.push(_addr);
+
+        //IndividualCreation();
+    }
+    function updateIndividual() public;
+    function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
+}
+
+
+contract FederalTaxation is BusinessTaxation, IndividualTaxation {
+    
+}
+
+
+contract StateTaxation is BusinessTaxation, IndividualTaxation {
+    
+}
+
+contract TaxReturn is Owned {
+    uint taxOwed;
+    uint taxRefund;
+    uint taxableYear;
+    function returnTaxReturn() public pure returns(uint taxOwed, uint taxRefund) {
+        return (taxOwed, taxRefund);
     }
 }
 
-// Employer Identification Numner
-contract FederalBusinessLicensing {
-
+contract Taxable is Owned {
+    address taxReturnId;
+    uint withHolding;
+    modifier taxableIncome {
+        _;
+    }
 }
