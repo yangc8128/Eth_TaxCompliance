@@ -45,4 +45,9 @@ library SafeMath {
     assert(c >= a);
     return c;
   }
+
+  function absSub(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = (b <= a) ? a - b : b - a;
+    return c;
+  }
 }

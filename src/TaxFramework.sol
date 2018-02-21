@@ -1,6 +1,7 @@
 pragma solidity ^0.4.16;
 
 import "./SafeContract.sol";
+import "./SafeMath.sol";
 // http://solidity.readthedocs.io/en/develop/layout-of-source-files.html
 
 // Expects a TaxEntity enum for types to be made when implemented
@@ -68,7 +69,12 @@ contract TaxReturn is Owned {
         uint dateFiled,
         TaxType taxType
     );
+    event TaxRebateEvent(
+        uint taxOwed,
+        uint taxRebate
+    );
 
+    address taxpayer;
     uint taxOwed;
     uint taxableYear;
     uint[4] itemizedTaxes;
@@ -76,15 +82,23 @@ contract TaxReturn is Owned {
     // Requiring SafeMath
     // https://ethereum.stackexchange.com/questions/25829/meaning-of-using-safemath-for-uint256
     function returnTaxReturn() public view returns(uint, uint) {
-        return (taxOwed, abs(taxOwed - this.balance) );
+        return (taxOwed, SafeMath.absSub(taxOwed,this.balance) );
     }
     // Should this function exist?
     function returnItemizedTaxReturn() external view;
     function fileTaxItem(uint _withHolding, TaxType _type) external {
         FiledTaxItemEvent(_withHolding,now,_type);
     }
+    // A Push Payment
     function taxRebate() external payable {
+        require(SafeMath.sub(now,taxableYear) >= 1 years);
 
+        uint balanceBefore = this.balance;
+        uint rebate = SafeMath.absSub(taxOwed,this.balance);
+        taxpayer.transfer(rebate);
+        assert(this.balance == SafeMath.sub(balanceBefore,rebate);
+
+        TaxRebateEvent(taxOwed,rebate);
     }
 }
 
@@ -100,7 +114,7 @@ contract Taxable is Owned {
         // Sending withholding amount
         uint balanceBefore = this.balance;
         taxReturnId.transfer(withHolding);
-        assert(this.balance == balanceBefore-withHolding);
+        assert(this.balance == SafeMath.sub(balanceBefore,withHolding);
 
         // Report withholding
         // https://ethereum.stackexchange.com/questions/19380/external-vs-public-best-practices
