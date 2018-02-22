@@ -97,7 +97,7 @@ contract TaxReturn is Owned {
         uint balanceBefore = this.balance;
         uint rebate = SafeMath.absSub(taxOwed,this.balance);
         taxpayer.transfer(rebate);
-        assert(this.balance == SafeMath.sub(balanceBefore,rebate);
+        assert(this.balance == SafeMath.sub(balanceBefore,rebate));
 
         TaxRebateEvent(taxOwed,rebate);
     }
@@ -115,7 +115,7 @@ contract Taxable is Owned {
         // Sending withholding amount
         uint balanceBefore = this.balance;
         taxReturnId.transfer(withHolding);
-        assert(this.balance == SafeMath.sub(balanceBefore,withHolding);
+        assert(this.balance == SafeMath.sub(balanceBefore,withHolding));
 
         // Report withholding
         // https://ethereum.stackexchange.com/questions/19380/external-vs-public-best-practices
