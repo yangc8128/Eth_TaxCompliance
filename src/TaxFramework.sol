@@ -62,6 +62,7 @@ contract TaxAgency is Owned {
 
 //https://ethereum.stackexchange.com/questions/29535/when-to-specify-uint-size
 contract TaxReturn is Owned {
+    // Modifiable to later updates for the Tax Agencies
     enum TaxType {INCOME,CAPITAL,WINS,DIVIDENDS}
 
     event FiledTaxItemEvent(
@@ -77,7 +78,7 @@ contract TaxReturn is Owned {
     address taxpayer;
     uint taxOwed;
     uint taxableYear;
-    uint[4] itemizedTaxes;
+    uint[4] itemizedTaxes; // Also modifiable for future updates
 
     // Requiring SafeMath
     // https://ethereum.stackexchange.com/questions/25829/meaning-of-using-safemath-for-uint256
