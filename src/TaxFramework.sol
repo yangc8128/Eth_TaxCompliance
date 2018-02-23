@@ -57,31 +57,6 @@ contract TaxAgency is Owned {
     function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
 }
 
-contract FederalTaxation is TaxAgency {
-    struct State {
-        address stateId;
-        uint balance;
-    }
-    struct Territory {
-        address territoryId;
-        uint balance;
-    }
-    mapping (address => State) states;
-    address[] stateIndex;
-
-    mapping (address => Territory) territories;
-    address[] territoryIndex;
-}
-contract StateTaxation is TaxAgency {
-    struct Municipal {
-        address municipalId;
-        uint balance;
-    }
-
-    address FederalId;
-    mapping (address => Municipal) municipalities;
-    address[] municipalIndex;
-}
 
 //https://ethereum.stackexchange.com/questions/29535/when-to-specify-uint-size
 contract TaxReturn is Owned {
@@ -125,6 +100,7 @@ contract TaxReturn is Owned {
         TaxRebateEvent(taxOwed,rebate);
     }
 }
+
 
 contract Taxable is Owned {
     event WithHoldingEvent( );
