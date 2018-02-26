@@ -49,6 +49,7 @@ contract TaxAgency is Owned {
 
 
 // Depends on preexisting Tax Agency
+// Recall owner is directly the tax payer
 contract TaxReturn is Owned {
     // Modifiable to later updates for the Tax Agencies
     enum TaxType {INCOME,CAPITAL,WINS,DIVIDENDS}
@@ -63,13 +64,11 @@ contract TaxReturn is Owned {
     uint64 taxOwed; // x <= 1.84e+19
     uint64[4] itemizedTaxes; // Also modifiable for future updates
     address taxAgency;
-    address taxpayer;
-
-
 }
 
 
 // Depends on preexisting TaxReturn contract
+// Recall owner is directly the service provider, or employer
 contract Taxable is Owned {
     event WithHoldingEvent( );
 
