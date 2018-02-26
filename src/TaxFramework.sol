@@ -13,25 +13,15 @@ contract TaxAgency is Owned {
         bool isIndividual;
         bool active;
         uint entityType;
-        //uint[] taxIds;
-        uint taxId;
+        uint taxReturnCount;
+        uint taxId; // ??
         bytes32 taxEntityName;
-    }
-    /*
-    struct TaxReturn {
-        uint year;
-        address taxReturnId;
-    }
-    struct TaxReturns {
-        TaxReturn[] taxReturns;
     }
     // Consider: Manually filling the parts into memory instead of utilizing a refernce variable
     // https://ethereum.stackexchange.com/questions/12611/solidity-filling-a-struct-array-containing-itself-an-array
-    */
-
 
     mapping (address => TaxEntity) public taxEntities;
-    //mapping (address => address[]) public taxReturns;
+    mapping (address => address[]) public taxReturns;
     address[] public taxEntityIndex;
 
     function setTaxEntity(
@@ -45,13 +35,27 @@ contract TaxAgency is Owned {
         public
         onlyOwner
     {
-        require(taxEntities[_addr].active == false);
+        require(!taxEntities[_addr].active);
 
-        TaxEntity memory b = TaxEntity(_isDomestic,_isIndividual,true,_type,_taxId,_name);
+        TaxEntity memory b = TaxEntity(_isDomestic,_isIndividual,true,_type,0,_taxId,_name);
         taxEntities[_addr] = b;
         taxEntityIndex.push(_addr);
 
         TaxEntityCreation();
+    }
+    function setTaxReturn(address _taxEntity, address _taxReturn) external {
+        require(taxEntities[_taxEntity].active);
+        taxReturns[_taxEntity].push(_taxReturn);
+        /*
+        // https://github.com/ethereum/solidity/issues/2106
+        // Issue with length of a uninitialized dynamic array
+        if (taxEntities[_taxEntity].taxReturnCount == 0) {
+            taxReturns[_taxEntity].push(_taxReturn);
+        } else {
+            address[] memory tempTaxReturns = taxReturns[_taxEntity];
+            tempTaxReturns.length
+        }
+        */
     }
     function updateTaxEntity() public;
     function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
@@ -59,6 +63,7 @@ contract TaxAgency is Owned {
 
 
 //https://ethereum.stackexchange.com/questions/29535/when-to-specify-uint-size
+// Depends on preexisting Tax Agency
 contract TaxReturn is Owned {
     // Modifiable to later updates for the Tax Agencies
     enum TaxType {INCOME,CAPITAL,WINS,DIVIDENDS}
@@ -73,10 +78,11 @@ contract TaxReturn is Owned {
         uint taxRebate
     );
 
+    uint16 taxableYear; // x <= 6.55e+3
+    uint64 taxOwed; // x <= 1.84e+19
+    uint64[4] itemizedTaxes; // Also modifiable for future updates
+    address taxAgency;
     address taxpayer;
-    uint taxOwed;
-    uint taxableYear;
-    uint[4] itemizedTaxes; // Also modifiable for future updates
 
     // Requiring SafeMath
     // https://ethereum.stackexchange.com/questions/25829/meaning-of-using-safemath-for-uint256
@@ -102,12 +108,13 @@ contract TaxReturn is Owned {
 }
 
 
+// Depends on preexisting TaxReturn contract
 contract Taxable is Owned {
     event WithHoldingEvent( );
 
-    address taxReturnId;
-    uint taxType;
+    uint8 taxType;
     uint withHolding;
+    address taxReturnId;
 
     modifier taxableIncome {
         _;
@@ -122,7 +129,7 @@ contract Taxable is Owned {
         assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(uint,uint)")), withHolding, taxType));
     }
 
-    function Taxable(address _addr, uint _taxType, uint _withHold) public {
+    function Taxable(address _addr, uint8 _taxType, uint _withHold) public {
         taxReturnId = _addr;
         taxType = _taxType;
         withHolding = _withHold;
