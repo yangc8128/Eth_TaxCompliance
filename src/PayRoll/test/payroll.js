@@ -40,3 +40,5 @@ contract('PayRoll', function(accounts) {
   // Attempt to kill Payment prior to payout
   */
 }); // End of contract
+
+// Truffle JS Test Documentation: http://truffleframework.com/docs/getting_started/javascript-tests
