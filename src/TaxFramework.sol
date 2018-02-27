@@ -11,8 +11,8 @@ contract TaxAgency is Owned {
         bool isDomestic;
         bool isIndividual;
         bool active;
-        uint entityType;
-        uint taxId; // ??
+        uint8 entityType;
+        uint32 taxId; // at most a 10 digit number
         bytes32 taxEntityName;
     }
 
@@ -24,8 +24,8 @@ contract TaxAgency is Owned {
         address _addr,
         bool _isDomestic,
         bool _isIndividual,
-        uint _type,
-        uint _taxId,
+        uint8 _type,
+        uint32 _taxId,
         bytes32 _name
     )
         public
@@ -55,34 +55,39 @@ contract TaxReturn is Owned {
     enum TaxType {INCOME,CAPITAL,WINS,DIVIDENDS}
 
     event FiledTaxItemEvent(
-        uint withHolding,
-        uint dateFiled,
-        TaxType taxType
+        uint8 taxType,
+        uint64 withHolding,
+        uint256 dateFiled
     );
 
     uint16 taxableYear; // x <= 6.55e+3
     uint64 taxOwed; // x <= 1.84e+19
     uint64[4] itemizedTaxes; // Also modifiable for future updates
     address taxAgency;
+
+    function fileTaxItem(TaxType _taxType, uint64 _withHolding) external {
+        taxOwed += _withHolding;
+        itemizedTaxes[uint8(_taxType)] += _withHolding;
+
+        FiledTaxItemEvent(uint8(_taxType), _withHolding, now);
+    }
 }
 
 
 // Depends on preexisting TaxReturn contract
 // Recall owner is directly the service provider, or employer
 contract Taxable is Owned {
-    event WithHoldingEvent( );
-
     uint8 taxType;
-    uint withHolding;
+    uint64 withHolding;
     address taxReturnId;
 
     modifier taxableIncome {
         _;
         // Report withholding
-        assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(uint,uint)")), withHolding, taxType));
+        assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(TaxReturn.TaxType,uint64)")), TaxReturn.TaxType(taxType), withHolding));
     }
 
-    function Taxable(address _addr, uint8 _taxType, uint _withHold) public {
+    function Taxable(address _addr, uint8 _taxType, uint64 _withHold) public {
         taxReturnId = _addr;
         taxType = _taxType;
         withHolding = _withHold;
