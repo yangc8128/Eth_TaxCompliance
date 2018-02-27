@@ -43,7 +43,7 @@ contract TaxAgency is Owned {
         require(taxEntities[_taxEntity].active);
         taxReturns[_taxEntity].push(_taxReturn);
     }
-    function updateTaxEntity() public;
+    //function updateTaxEntity() public;
     function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
 }
 

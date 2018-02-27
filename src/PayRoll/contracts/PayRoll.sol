@@ -1,7 +1,7 @@
 pragma solidity ^0.4.16;
 
-import "../SafeContract.sol";
-import "../SafeMath.sol";
+import "../../SafeContract.sol";
+import "../../SafeMath.sol";
 
 contract EmploymentRecord is Owned, Mutex {
     enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
@@ -48,9 +48,10 @@ contract EmploymentRecord is Owned, Mutex {
     }
 
     // Access an Employee by its address, and returns an event for the DApp
-    function accessEmployee(address _addr) public noReentrancy {
+    function accessEmployee(address _addr) external noReentrancy returns(bool){
         Employee memory e = employees[_addr];
         AccessEmployeeEvent(e.active,e.status,e.fName,e.lName);
+        return e.active;
     }
 
     // Consider making payable for during creation
@@ -94,13 +95,13 @@ contract EmploymentRecord is Owned, Mutex {
         CheckPaymentEvent(paymentContracts[_employee]);
     }
 
-    function checkPayment() public noReentrancy {
+    function checkPayment() external noReentrancy {
         // Ensuring that only the exact employee can access and that the employee is active
         require(employees[msg.sender].active);
         CheckPaymentEvent(paymentContracts[msg.sender]);
     }
 
-    function ownerCheckPayment(address _employee) public onlyOwner {
+    function ownerCheckPayment(address _employee) external onlyOwner {
         // Ensuring the only the employee is active
         require(employees[_employee].active);
         CheckPaymentEvent(paymentContracts[_employee]);

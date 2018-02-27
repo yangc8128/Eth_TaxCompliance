@@ -14,6 +14,7 @@ contract Owned {
         _;
     }
 
+    function getOwner( ) external view returns(address) {return owner;}
     function stop( ) public onlyOwner { active = false; }
     function close( ) public onlyOwner { selfdestruct(owner); }
 }
