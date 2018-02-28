@@ -4,6 +4,16 @@
  * The added parameter in the list has modified the address, i.e. msg.sender
  */
 
+/*
+ * Test Environment Questions:
+ * When deploying contracts at the beginning with artifacts, is it accounts[0], that does it?
+ * How do I deploy a new contract in the contract_js test?
+ * Do asynchronous tests run in parallel grouped via "it()"?
+ * How do I simulate time passing?
+ * How do I initialize a Payment with appropriate endTimes?
+ * How do I initialize a Payment with appropriate ether to $, without fiat transactions?
+ */
+
 // Used for testing in application context
 var PayRoll = artifacts.require("./PayRoll.sol");
 
@@ -17,7 +27,7 @@ contract('PayRoll', function(accounts) {
   });
 
 
-  it("should create and map an employee ", function() {
+  it("should create and map an employee", function() {
     return PayRoll.deployed().then(function(instance) {
       instance.setEmployee.call(instance.EmploymentType.PERM,accounts[1],true,"Bob","Marley");
       return instance.accessEmployee.call(accounts[1]);
