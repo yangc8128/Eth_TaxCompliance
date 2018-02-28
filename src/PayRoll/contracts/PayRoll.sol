@@ -107,6 +107,15 @@ contract EmploymentRecord is Owned, Mutex {
         CheckPaymentEvent(paymentContracts[_employee]);
     }
 
+
+    function updateEmployeeActiveFlag(address _employee, bool _active) public onlyOwner {
+        employees[_employee].active = _active;
+    }
+
+    function updateEmployeeStatus(address _employee, EmploymentType _status) public onlyOwner {
+        employees[_employee].status = _status;
+    }
+
     function getPaymentContractCount( ) public constant returns(uint256 _length) {
         return paymentIndex.length;
     }
