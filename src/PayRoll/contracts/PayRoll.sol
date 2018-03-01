@@ -48,7 +48,7 @@ contract EmploymentRecord is Owned, Mutex {
     }
 
     // Access an Employee by its address, and returns an event for the DApp
-    function accessEmployee(address _addr) external noReentrancy returns(bool){
+    function accessEmployee(address _addr) external noReentrancy returns(bool) {
         Employee memory e = employees[_addr];
         AccessEmployeeEvent(e.active,e.status,e.fName,e.lName);
         return e.active;
