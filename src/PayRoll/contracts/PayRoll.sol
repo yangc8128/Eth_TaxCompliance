@@ -148,7 +148,7 @@ contract Payment is Owned {
         employee = _employee;
         payPer = _pay;
         freq = FREQUENCIES[_freq];
-        endTime = _endTime;
+        endTime = now + _endTime;
         lastUpdate = now;
         owed = 0;
         PaymentCreationEvent();

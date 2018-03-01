@@ -112,7 +112,7 @@ contract('PayRoll', function(accounts) {
   });
 
 
-  /*
+ /*
   // Requires timemachine
   // Attempt to timely ask for a payout on a Payment from employee
   it("should pay employee from Payment", function() {
@@ -126,7 +126,7 @@ contract('PayRoll', function(accounts) {
   // Attempt to prematurely payout Payment from owner
   // Attempt to prematurely payout Payment from stranger
   // Attempt to kill Payment prior to payout
-  */
+ */
 }); // End of contract
 
 // [1] Truffle JS Test Documentation: http://truffleframework.com/docs/getting_started/javascript-tests
