@@ -66,45 +66,40 @@ const timeTravel = function (time) {
 
 contract('PayRoll', function(accounts) {
   it("should determine owner of PayRoll", function() {
-    return PayRoll.deployed.then(function(instance) {
-      return instance.getOwner.call();
-    }).then(function(owner) {
-      assert.equal(owner, accounts[0], "First account is not owner");
-    });
+    let instance = await PayRoll.deployed();
+    let ownerAddr = await instance.getOwner.call();
+    assert.equal(ownerAddr, accounts[0], "First account is not owner");
   });
 
 
   it("should create and map an employee", function() {
-    return PayRoll.deployed().then(function(instance) {
-      instance.setEmployee.call(instance.EmploymentType.PERM,accounts[1],true,"Bob","Marley");
-      return instance.accessEmployee.call(accounts[1]);
-    }).then(function(activeStatus) {
-      assert.equal(activeStatus, true, "Did not create employee, nor properly mapped");
-    });
+    let instance = await PayRoll.deployed();
+    await instance.setEmployee.call(instance.EmploymentType.PERM,accounts[1],true,"Bob","Marley");
+    let activeStatus = await instance.accessEmployee.call(accounts[1]);
+    assert.equal(activeStatus, true, "Did not create employee, nor properly mapped");
   });
 
 
   it("should create and map a Payment for existing employee", function() {
-    return PayRoll.deployed().then(function(instance) {
-      return instance.createEmployee.call(instance.owner,accounts[1],2500,2500,2500);
-    }).then(function(paymentAddress) {
-      assert.equal(paymentAddress, instance.paymentContracts[accounts[1]], "Payment not successfully created and mapped");
-    });
+    let instance = await PayRoll.deployed();
+    let payAddr = await instance.createPayment.call(instance.owner,accounts[1],2500,2500,2500);
+    var correctAccount = instance.paymentContracts[accounts[1]];
+    assert.equal(payAddr, correctAccount, "Payment not successfully created and mapped");
   });
   it("should fail to create and map a Payment for nonexisting employee", function() {
-    return PayRoll.deployed().then(function(instance) {
-      return instance.createEmployee.call(instance.owner,accounts[2],2500,2500,2500);
-    }).then(function(paymentAddress) {
-      assert.equal(paymentAddress, instance.paymentContracts[accounts[2]], "Incorrect payment successfully created and mapped");
-    });
+    let instance = await PayRoll.deployed();
+    let payAddr = await instance.createPayment.call(instance.owner,accounts[2],2500,2500,2500);
+    var failedAccount = instance.paymentContracts[accounts[2]];
+    assert.equal(payAddr, failedAccount, "Incorrect payment successfully created and mapped");
+    // TODO
   });
   it("should fail to create and map a Payment for nonactive employee", function() {
-    return PayRoll.deployed().then(function(instance) {
-      instance.updateEmployeeActiveFlag.call(account[1], false);
-      return instance.createEmployee.call(instance.owner,accounts[1],2500,2500,2500);
-    }).then(function(paymentAddress) {
-      assert.equal(paymentAddress, instance.paymentContracts[accounts[1]], "Incorrect payment successfully created and mapped");
-    });
+    let instance = await PayRoll.deployed();
+    await instance.updateEmployeeActiveFlag.call(account[1], false);
+    let payAddr = await instance.createPayment.call(instance.owner,accounts[1],2500,2500,2500);
+    var failedAccount = instance.paymentContracts[accounts[1]];
+    assert.equal(paymentAddress, failedAccount, "Incorrect payment successfully created and mapped");
+    // TODO
   });
 
 
@@ -112,8 +107,8 @@ contract('PayRoll', function(accounts) {
   // Requires timemachine
   // Attempt to timely ask for a payout on a Payment from employee
   it("should pay employee from Payment", function() {
-    let payroll = await PayRoll.deployed();
-    let paymentAddress = await payroll.paymentContracts[accounts[1]];
+    let instance = await PayRoll.deployed();
+    let paymentAddress = await instance.paymentContracts[accounts[1]];
 
     // TODO
     });
