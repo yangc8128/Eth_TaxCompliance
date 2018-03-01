@@ -6,7 +6,9 @@
  *    The added parameter in the list has modified the address, i.e. msg.sender
  * 
  * When deploying contracts at the beginning with artifacts, is it accounts[0], that does it?
+ * 
  * How do I deploy a new contract in the contract_js test?
+ * 
  * Do asynchronous tests run in parallel grouped via "it()"? [2]
  *    Works off of the pair of await and a promise function such as ___.cal()
  *    Error with async, needs to be wrapped with a try/catch
@@ -39,7 +41,9 @@
  * How do I initialize a Payment with appropriate endTimes? [2]
  *    utilize number in uints of seconds for time (86400 secs = 1 days)
  *
- * How do I initialize a Payment with appropriate ether to $, without fiat transactions?
+ * How do I initialize a Payment with appropriate ether to $, without fiat transactions? [4]
+ *    // Added the correct account, and the gas to go with it
+ *    return instance.run({from: accounts[1], gasPrice: gasPrice});
  */
 
 // Used for testing in application context
@@ -108,10 +112,10 @@ contract('PayRoll', function(accounts) {
   // Requires timemachine
   // Attempt to timely ask for a payout on a Payment from employee
   it("should pay employee from Payment", function() {
-    return PayRoll.deployed().then(function(instance) {
-      return instance.paymentContracts[accounts[1]];
-    }).then(function(paymentAddress) {
+    let payroll = await PayRoll.deployed();
+    let paymentAddress = await payroll.paymentContracts[accounts[1]];
 
+    // TODO
     });
   });
   // Attempt to prematurely payout Payment from employee
@@ -123,3 +127,5 @@ contract('PayRoll', function(accounts) {
 
 // [1] Truffle JS Test Documentation: http://truffleframework.com/docs/getting_started/javascript-tests
 // [2] Medium Article on Truffle async / await: https://medium.com/@angellopozo/testing-solidity-with-truffle-and-async-await-396e81c54f93
+// [3] StackOverFlow geth "truffle migrate": https://stackoverflow.com/questions/45618719/setting-gas-for-truffle
+// [4] StackOverFlow initialize and monitor gas useage: https://stackoverflow.com/questions/47896681/accounting-for-transaction-fees-in-ethereum-contract-using-truffle
