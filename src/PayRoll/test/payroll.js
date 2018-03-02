@@ -77,16 +77,21 @@ contract('PayRoll', function(accounts) {
     assert.equal(ownerAddr, accounts[0], "First account is not owner");
   });
 
-
+  const testSetEmployee = function (instance, type, acctID, stringTag) {
+    await instance.setEmployee.call(type,acctID,true,"Bob","Marley");
+    let activeStatus = await instance.accessEmployee.call(acctID);
+    assert.equal(activeStatus, true, "Did not create employee, nor properly mapped for: " + stringTag);
+  }
   it("should create and map an employee", function() {
     let instance = await PayRoll.deployed();
-    await instance.setEmployee.call(instance.EmploymentType.PERM,accounts[1],true,"Bob","Marley");
-    let activeStatus = await instance.accessEmployee.call(accounts[1]);
-    assert.equal(activeStatus, true, "Did not create employee, nor properly mapped");
+    testSetEmployee(instance, instance.EmploymentType.OWNER, accounts[1], "Owner");
+    testSetEmployee(instance, instance.EmploymentType.PERM, accounts[1], "Permanent");
+    testSetEmployee(instance, instance.EmploymentType.CASUAL, accounts[1], "Casual");
+    testSetEmployee(instance, instance.EmploymentType.CONTRACT, accounts[1], "Contract");
   });
 
   var pay = 250000;
-  var freq = 604800;
+  var freq = 1;
   var endTime = 31556926;
 
   it("should create and map a Payment for existing employee", function() {
