@@ -94,25 +94,24 @@ contract('PayRoll', function(accounts) {
   var freq = 1;
   var endTime = 31556926;
 
+  const testCreatePayment = function (acctID, errorStatement) {
+    let payAddr = await instance.createPayment.call(instance.owner,acctID,pay,freq,endTime);
+    var createdPaymentAddr = instance.paymentContracts[acctID];
+    assert.equal(payAddr, createdPaymentAddr, errorStatement);
+  }
   it("should create and map a Payment for existing employee", function() {
     let instance = await PayRoll.deployed();
-    let payAddr = await instance.createPayment.call(instance.owner,accounts[1],pay,freq,endTime);
-    var correctAccount = instance.paymentContracts[accounts[1]];
-    assert.equal(payAddr, correctAccount, "Payment not successfully created and mapped");
+    testCreatePayment(accounts[1],"Payment not successfully created and mapped");
   });
   it("should fail to create and map a Payment for nonexisting employee", function() {
     let instance = await PayRoll.deployed();
-    let payAddr = await instance.createPayment.call(instance.owner,accounts[2],pay,freq,endTime);
-    var failedAccount = instance.paymentContracts[accounts[2]];
-    assert.equal(payAddr, failedAccount, "Incorrect payment successfully created and mapped");
+    testCreatePayment(accounts[2],"Incorrect payment successfully created and mapped");
     // TODO
   });
   it("should fail to create and map a Payment for nonactive employee", function() {
     let instance = await PayRoll.deployed();
     await instance.updateEmployeeActiveFlag.call(account[1], false);
-    let payAddr = await instance.createPayment.call(instance.owner,accounts[1],pay,freq,endTime);
-    var failedAccount = instance.paymentContracts[accounts[1]];
-    assert.equal(paymentAddress, failedAccount, "Incorrect payment successfully created and mapped");
+    testCreatePayment(accounts[1],"Incorrect payment successfully created and mapped");
     // TODO
   });
 
