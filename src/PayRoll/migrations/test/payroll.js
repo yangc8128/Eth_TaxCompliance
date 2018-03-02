@@ -57,8 +57,8 @@
  */
 
 // Used for testing in application context
-var PayRoll = artifacts.require("./PayRoll.sol");
-var Payment = artifacts.require("./PayRoll.sol");
+var EmploymentRecord = artifacts.require("EmploymentRecord");
+var Payment = artifacts.require("Payment");
 
 // Helper Test Function
 const timeTravel = function (time) {
@@ -75,20 +75,20 @@ const timeTravel = function (time) {
   })
 }
 
-contract('PayRoll', function(accounts) {
+contract('EmploymentRecord', function(accounts) {
   it("should determine owner of PayRoll", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     let ownerAddr = await instance.getOwner.call();
     assert.equal(ownerAddr, accounts[0], "First account is not owner");
   });
 
-  const testSetEmployee = function (instance, type, acctID, stringTag) {
+  const testSetEmployee = async function (instance, type, acctID, stringTag) {
     await instance.setEmployee.call(type,acctID,true,"Bob","Marley");
     let activeStatus = await instance.accessEmployee.call(acctID);
     assert.equal(activeStatus, true, "Did not create employee, nor properly mapped for: " + stringTag);
   }
   it("should create and map an employee", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     testSetEmployee(instance, instance.EmploymentType.OWNER, accounts[0], "Owner");
     testSetEmployee(instance, instance.EmploymentType.PERM, accounts[1], "Permanent");
     testSetEmployee(instance, instance.EmploymentType.CASUAL, accounts[2], "Casual");
@@ -106,16 +106,16 @@ contract('PayRoll', function(accounts) {
     assert.equal(payAddr, createdPaymentAddr, errorStatement);
   }
   it("should create and map a Payment for existing employee", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     testCreatePayment(accounts[1],"Payment not successfully created and mapped");
   });
   it("should fail to create and map a Payment for nonexisting employee", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     testCreatePayment(accounts[2],"Incorrect payment successfully created and mapped");
     // TODO
   });
   it("should fail to create and map a Payment for nonactive employee", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     await instance.updateEmployeeActiveFlag.call(accounts[1], false);
     testCreatePayment(accounts[1],"Incorrect payment successfully created and mapped");
     // TODO
@@ -125,7 +125,7 @@ contract('PayRoll', function(accounts) {
   // Requires timemachine, accounts that are not accounts[0]
   // Attempt to timely ask for a withdraw on a Payment from employee
   it("should pay employee from Payment", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
 
@@ -145,7 +145,7 @@ contract('PayRoll', function(accounts) {
   // Why are these necessary? What errors will be faced? Possibly will payout anyways
   // Attempt to prematurely withdraw Payment from employee
   it("should fail to prematurely pay employee from Payment", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
 
@@ -160,7 +160,7 @@ contract('PayRoll', function(accounts) {
 
   // Attempt to prematurely withdraw Payment from owner
   it("should fail to prematurely pay wrong recipient from Payment", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
 
@@ -174,7 +174,7 @@ contract('PayRoll', function(accounts) {
   });
   // Attempt to prematurely withdraw Payment from stranger
   it("should fail to prematurely pay wrong recipient from Payment", async function() {
-    let instance = await PayRoll.deployed();
+    let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
 
