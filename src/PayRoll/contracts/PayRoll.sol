@@ -161,11 +161,15 @@ contract Payment is Owned {
         require(owed > 0);
 
         // Money Transfer
-        uint balanceBefore = this.balance;
-        employee.transfer(owed);
-        assert(this.balance == balanceBefore-owed);
+        if (owed > this.balance) {
+            PaymentEvent("Pending",owed,now);
+        } else {
+            uint balanceBefore = this.balance;
+            employee.transfer(owed);
+            assert(this.balance == balanceBefore-owed);
 
-        PaymentEvent("Success",owed,now);
+            PaymentEvent("Success",owed,now);
+        }
     }
 
     // Is required to refill a Payment contract for the Employee to withdraw
