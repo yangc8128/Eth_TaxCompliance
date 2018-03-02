@@ -48,12 +48,17 @@
  *    // Added the correct account, and the gas to go with it
  *    return instance.run({from: accounts[1], gasPrice: gasPrice});
  * 
+ * How do you test event catching? [http://truffleframework.com/docs/getting_started/contracts#catching-events]
+ * 
+ * Use a Contract at a specific address? [http://truffleframework.com/docs/getting_started/contracts#use-a-contract-at-a-specific-address]
+ * 
  * Truffle Test Reference: http://www.zohaib.me/reusable-code-in-solidity-using-library/
  * Diving a MegaFactory into Smaller ones: https://ethereum.stackexchange.com/questions/12698/need-help-to-break-down-large-contract
  */
 
 // Used for testing in application context
 var PayRoll = artifacts.require("./PayRoll.sol");
+var Payment = artifacts.require("./PayRoll.sol");
 
 // Helper Test Function
 const timeTravel = function (time) {
@@ -71,7 +76,7 @@ const timeTravel = function (time) {
 }
 
 contract('PayRoll', function(accounts) {
-  it("should determine owner of PayRoll", function() {
+  it("should determine owner of PayRoll", async function() {
     let instance = await PayRoll.deployed();
     let ownerAddr = await instance.getOwner.call();
     assert.equal(ownerAddr, accounts[0], "First account is not owner");
@@ -82,55 +87,106 @@ contract('PayRoll', function(accounts) {
     let activeStatus = await instance.accessEmployee.call(acctID);
     assert.equal(activeStatus, true, "Did not create employee, nor properly mapped for: " + stringTag);
   }
-  it("should create and map an employee", function() {
+  it("should create and map an employee", async function() {
     let instance = await PayRoll.deployed();
-    testSetEmployee(instance, instance.EmploymentType.OWNER, accounts[1], "Owner");
+    testSetEmployee(instance, instance.EmploymentType.OWNER, accounts[0], "Owner");
     testSetEmployee(instance, instance.EmploymentType.PERM, accounts[1], "Permanent");
-    testSetEmployee(instance, instance.EmploymentType.CASUAL, accounts[1], "Casual");
-    testSetEmployee(instance, instance.EmploymentType.CONTRACT, accounts[1], "Contract");
+    testSetEmployee(instance, instance.EmploymentType.CASUAL, accounts[2], "Casual");
+    testSetEmployee(instance, instance.EmploymentType.CONTRACT, accounts[3], "Contract");
   });
 
+  // Consider making frequency just input for seconds
   var pay = 250000;
   var freq = 1;
   var endTime = 31556926;
 
-  const testCreatePayment = function (acctID, errorStatement) {
+  const testCreatePayment = async function (acctID, errorStatement) {
     let payAddr = await instance.createPayment.call(instance.owner,acctID,pay,freq,endTime);
     var createdPaymentAddr = instance.paymentContracts[acctID];
     assert.equal(payAddr, createdPaymentAddr, errorStatement);
   }
-  it("should create and map a Payment for existing employee", function() {
+  it("should create and map a Payment for existing employee", async function() {
     let instance = await PayRoll.deployed();
     testCreatePayment(accounts[1],"Payment not successfully created and mapped");
   });
-  it("should fail to create and map a Payment for nonexisting employee", function() {
+  it("should fail to create and map a Payment for nonexisting employee", async function() {
     let instance = await PayRoll.deployed();
     testCreatePayment(accounts[2],"Incorrect payment successfully created and mapped");
     // TODO
   });
-  it("should fail to create and map a Payment for nonactive employee", function() {
+  it("should fail to create and map a Payment for nonactive employee", async function() {
     let instance = await PayRoll.deployed();
-    await instance.updateEmployeeActiveFlag.call(account[1], false);
+    await instance.updateEmployeeActiveFlag.call(accounts[1], false);
     testCreatePayment(accounts[1],"Incorrect payment successfully created and mapped");
     // TODO
   });
 
 
- /*
-  // Requires timemachine
-  // Attempt to timely ask for a payout on a Payment from employee
-  it("should pay employee from Payment", function() {
+  // Requires timemachine, accounts that are not accounts[0]
+  // Attempt to timely ask for a withdraw on a Payment from employee
+  it("should pay employee from Payment", async function() {
     let instance = await PayRoll.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
+    let paymentInstance = Payment.at(paymentAddress);
 
-    // TODO
-    });
+    var pay = paymentInstance.payPer;
+    var freq = paymentInstance.freq;
+    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+
+    // Timemachine call
+      await timeTravel(freq)
+      await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
+
+    let balanceBefore = await web3.eth.getBalance(accounts[1]);
+    await paymentInstance.withdraw.call( {from: acounts[1]} );
+    let balanceAfter = await web3.eth.getBalance(accounts[1]);
+    assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
   });
-  // Attempt to prematurely payout Payment from employee
-  // Attempt to prematurely payout Payment from owner
-  // Attempt to prematurely payout Payment from stranger
-  // Attempt to kill Payment prior to payout
- */
+  // Why are these necessary? What errors will be faced? Possibly will payout anyways
+  // Attempt to prematurely withdraw Payment from employee
+  it("should fail to prematurely pay employee from Payment", async function() {
+    let instance = await PayRoll.deployed();
+    let paymentAddress = await instance.paymentContracts[accounts[1]];
+    let paymentInstance = Payment.at(paymentAddress);
+
+    var pay = paymentInstance.payPer;
+    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+
+    let balanceBefore = await web3.eth.getBalance(accounts[1]);
+    await paymentInstance.withdraw.call( {from: acounts[1]} );
+    let balanceAfter = await web3.eth.getBalance(accounts[1]);
+    assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
+  });
+
+  // Attempt to prematurely withdraw Payment from owner
+  it("should fail to prematurely pay wrong recipient from Payment", async function() {
+    let instance = await PayRoll.deployed();
+    let paymentAddress = await instance.paymentContracts[accounts[1]];
+    let paymentInstance = Payment.at(paymentAddress);
+
+    var pay = paymentInstance.payPer;
+    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+
+    let balanceBefore = await web3.eth.getBalance(accounts[0]);
+    await paymentInstance.withdraw.call( {from: acounts[0]} );
+    let balanceAfter = await web3.eth.getBalance(accounts[0]);
+    assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
+  });
+  // Attempt to prematurely withdraw Payment from stranger
+  it("should fail to prematurely pay wrong recipient from Payment", async function() {
+    let instance = await PayRoll.deployed();
+    let paymentAddress = await instance.paymentContracts[accounts[1]];
+    let paymentInstance = Payment.at(paymentAddress);
+
+    var pay = paymentInstance.payPer;
+    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+
+    let balanceBefore = await web3.eth.getBalance(accounts[5]);
+    await paymentInstance.withdraw.call( {from: acounts[5]} );
+    let balanceAfter = await web3.eth.getBalance(accounts[5]);
+    assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
+  });
+  // Attempt to kill Payment prior to withdraw/payout
 }); // End of contract
 
 // [1] Truffle JS Test Documentation: http://truffleframework.com/docs/getting_started/javascript-tests
