@@ -1,0 +1,457 @@
+{
+  "contractName": "StateTaxation",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "active",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "stop",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "taxEntities",
+      "outputs": [
+        {
+          "name": "isDomestic",
+          "type": "bool"
+        },
+        {
+          "name": "isIndividual",
+          "type": "bool"
+        },
+        {
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "name": "entityType",
+          "type": "uint8"
+        },
+        {
+          "name": "taxId",
+          "type": "uint32"
+        },
+        {
+          "name": "taxEntityName",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "close",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "taxEntityIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "taxReturns",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "returnTaxReturn",
+      "outputs": [
+        {
+          "name": "taxOwed",
+          "type": "uint256"
+        },
+        {
+          "name": "taxRefund",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_taxEntity",
+          "type": "address"
+        },
+        {
+          "name": "_taxReturn",
+          "type": "address"
+        }
+      ],
+      "name": "setTaxReturn",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_addr",
+          "type": "address"
+        },
+        {
+          "name": "_isDomestic",
+          "type": "bool"
+        },
+        {
+          "name": "_isIndividual",
+          "type": "bool"
+        },
+        {
+          "name": "_type",
+          "type": "uint8"
+        },
+        {
+          "name": "_taxId",
+          "type": "uint32"
+        },
+        {
+          "name": "_name",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setTaxEntity",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "TaxEntityCreation",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.16;\r\n\r\nimport \"./TaxFramework.sol\";\r\n\r\n// Covers Income Taxes\r\ncontract FederalTaxation is TaxAgency {\r\n    // Define Tax Brackets\r\n}\r\n\r\n// Covers Sales/Income/Property Taxes\r\ncontract StateTaxation is TaxAgency {\r\n    // Define Tax Brackets\r\n}\r\n\r\n// https://answers.microsoft.com/en-us/windows/forum/windows8_1-performance/unable-to-defragment-and-optimize-volume-drive-on/ee995793-bcfd-4748-83c4-4669aafcaa12\r\n// https://themerkle.com/one-smart-contract-and-3-5m-in-ether-can-cripple-the-ethereum-network-for-a-full-week/\r\n",
+  "sourcePath": "C:\\Users\\Caleb\\Documents\\SourceTree\\ethTax\\src\\PayRoll\\contracts\\TaxAgencies.sol",
+  "ast": {
+    "absolutePath": "/C/Users/Caleb/Documents/SourceTree/ethTax/src/PayRoll/contracts/TaxAgencies.sol",
+    "exportedSymbols": {
+      "FederalTaxation": [
+        1073
+      ],
+      "StateTaxation": [
+        1076
+      ]
+    },
+    "id": 1077,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1069,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".16"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:6"
+      },
+      {
+        "absolutePath": "/C/Users/Caleb/Documents/SourceTree/ethTax/src/PayRoll/contracts/TaxFramework.sol",
+        "file": "./TaxFramework.sol",
+        "id": 1070,
+        "nodeType": "ImportDirective",
+        "scope": 1077,
+        "sourceUnit": 1297,
+        "src": "28:28:6",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 1071,
+              "name": "TaxAgency",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1191,
+              "src": "112:9:6",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_TaxAgency_$1191",
+                "typeString": "contract TaxAgency"
+              }
+            },
+            "id": 1072,
+            "nodeType": "InheritanceSpecifier",
+            "src": "112:9:6"
+          }
+        ],
+        "contractDependencies": [
+          923,
+          1191
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 1073,
+        "linearizedBaseContracts": [
+          1073,
+          1191,
+          923
+        ],
+        "name": "FederalTaxation",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 1077,
+        "src": "84:70:6"
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 1074,
+              "name": "TaxAgency",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1191,
+              "src": "223:9:6",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_TaxAgency_$1191",
+                "typeString": "contract TaxAgency"
+              }
+            },
+            "id": 1075,
+            "nodeType": "InheritanceSpecifier",
+            "src": "223:9:6"
+          }
+        ],
+        "contractDependencies": [
+          923,
+          1191
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 1076,
+        "linearizedBaseContracts": [
+          1076,
+          1191,
+          923
+        ],
+        "name": "StateTaxation",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 1077,
+        "src": "197:68:6"
+      }
+    ],
+    "src": "0:546:6"
+  },
+  "legacyAST": {
+    "absolutePath": "/C/Users/Caleb/Documents/SourceTree/ethTax/src/PayRoll/contracts/TaxAgencies.sol",
+    "exportedSymbols": {
+      "FederalTaxation": [
+        1073
+      ],
+      "StateTaxation": [
+        1076
+      ]
+    },
+    "id": 1077,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1069,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".16"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:6"
+      },
+      {
+        "absolutePath": "/C/Users/Caleb/Documents/SourceTree/ethTax/src/PayRoll/contracts/TaxFramework.sol",
+        "file": "./TaxFramework.sol",
+        "id": 1070,
+        "nodeType": "ImportDirective",
+        "scope": 1077,
+        "sourceUnit": 1297,
+        "src": "28:28:6",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 1071,
+              "name": "TaxAgency",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1191,
+              "src": "112:9:6",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_TaxAgency_$1191",
+                "typeString": "contract TaxAgency"
+              }
+            },
+            "id": 1072,
+            "nodeType": "InheritanceSpecifier",
+            "src": "112:9:6"
+          }
+        ],
+        "contractDependencies": [
+          923,
+          1191
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 1073,
+        "linearizedBaseContracts": [
+          1073,
+          1191,
+          923
+        ],
+        "name": "FederalTaxation",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 1077,
+        "src": "84:70:6"
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 1074,
+              "name": "TaxAgency",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1191,
+              "src": "223:9:6",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_TaxAgency_$1191",
+                "typeString": "contract TaxAgency"
+              }
+            },
+            "id": 1075,
+            "nodeType": "InheritanceSpecifier",
+            "src": "223:9:6"
+          }
+        ],
+        "contractDependencies": [
+          923,
+          1191
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 1076,
+        "linearizedBaseContracts": [
+          1076,
+          1191,
+          923
+        ],
+        "name": "StateTaxation",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 1077,
+        "src": "197:68:6"
+      }
+    ],
+    "src": "0:546:6"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.19+commit.c4cbbb05.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.0",
+  "updatedAt": "2018-03-04T04:44:59.980Z"
+}
