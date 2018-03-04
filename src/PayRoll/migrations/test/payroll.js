@@ -56,6 +56,10 @@
  * Diving a MegaFactory into Smaller ones: https://ethereum.stackexchange.com/questions/12698/need-help-to-break-down-large-contract
  */
 
+// https://github.com/babel/babel/issues/5085 <IS THE FIX>
+import 'babel-polyfill';
+//import './app';
+
 // Used for testing in application context
 var EmploymentRecord = artifacts.require("EmploymentRecord");
 var Payment = artifacts.require("Payment");
@@ -75,32 +79,42 @@ const timeTravel = function (time) {
   })
 }
 
+// https://github.com/babel/babel-loader/issues/484
+// https://javascript.info/async-await
 contract('EmploymentRecord', function(accounts) {
-  it("should determine owner of PayRoll", async function() {
+  // PASSED
+  it("1 should determine owner of PayRoll", async function() {
     let instance = await EmploymentRecord.deployed();
-    let ownerAddr = await instance.getOwner.call();
+    let ownerAddr = await instance.owner.call();
     assert.equal(ownerAddr, accounts[0], "First account is not owner");
   });
 
-  const testSetEmployee = async function (instance, type, acctID, stringTag) {
-    await instance.setEmployee.call(type,acctID,true,"Bob","Marley");
+
+  const testSetEmployee = async function (type, acctID, stringTag) {
+    let instance = await EmploymentRecord.deployed();
+    await instance.setEmployee(type,acctID,"Bob","Marley");
     let activeStatus = await instance.accessEmployee.call(acctID);
     assert.equal(activeStatus, true, "Did not create employee, nor properly mapped for: " + stringTag);
   }
-  it("should create and map an employee", async function() {
-    let instance = await EmploymentRecord.deployed();
-    testSetEmployee(instance, instance.EmploymentType.OWNER, accounts[0], "Owner");
-    testSetEmployee(instance, instance.EmploymentType.PERM, accounts[1], "Permanent");
-    testSetEmployee(instance, instance.EmploymentType.CASUAL, accounts[2], "Casual");
-    testSetEmployee(instance, instance.EmploymentType.CONTRACT, accounts[3], "Contract");
+  it("2 should create and map owner", async function() {
+    testSetEmployee(0, accounts[0], "Owner");
   });
-
+  it("3 should create and map permanent employee", async function() {
+    testSetEmployee(1, accounts[1], "Permanent");
+  });
+  it("4 should create and map casual employee", async function() {
+    testSetEmployee(2, accounts[2], "Casual");
+  });
+  it("5 should create and map contract employee", async function() {
+    testSetEmployee(3, accounts[3], "Contract");
+  });
+/*
   // Consider making frequency just input for seconds
   var pay = 250000;
   var freq = 1;
   var endTime = 31556926;
 
-  const testCreatePayment = async function (acctID, errorStatement) {
+  const testCreatePayment = async function(acctID, errorStatement) {
     let payAddr = await instance.createPayment.call(instance.owner,acctID,pay,freq,endTime);
     var createdPaymentAddr = instance.paymentContracts[acctID];
     assert.equal(payAddr, createdPaymentAddr, errorStatement);
@@ -111,13 +125,14 @@ contract('EmploymentRecord', function(accounts) {
   });
   it("should fail to create and map a Payment for nonexisting employee", async function() {
     let instance = await EmploymentRecord.deployed();
-    testCreatePayment(accounts[2],"Incorrect payment successfully created and mapped");
+    testCreatePayment(accounts[5],"Incorrect payment successfully created and mapped");
     // TODO
   });
   it("should fail to create and map a Payment for nonactive employee", async function() {
     let instance = await EmploymentRecord.deployed();
     await instance.updateEmployeeActiveFlag.call(accounts[1], false);
-    testCreatePayment(accounts[1],"Incorrect payment successfully created and mapped");
+    assert.equal(instance.employees[accounts[1]],false, "Account is still active");
+    //testCreatePayment(accounts[1],"Incorrect payment successfully created and mapped");
     // TODO
   });
 
@@ -159,7 +174,7 @@ contract('EmploymentRecord', function(accounts) {
   });
 
   // Attempt to prematurely withdraw Payment from owner
-  it("should fail to prematurely pay wrong recipient from Payment", async function() {
+  it("should fail to prematurely pay to Owner from Payment", async function() {
     let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
@@ -184,10 +199,26 @@ contract('EmploymentRecord', function(accounts) {
     let balanceBefore = await web3.eth.getBalance(accounts[5]);
     await paymentInstance.withdraw.call( {from: acounts[5]} );
     let balanceAfter = await web3.eth.getBalance(accounts[5]);
-    assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
+    assert.equals(balanceBefore + pay, balanceAfter, "Payment was successful");
   });
+  */
   // Attempt to kill Payment prior to withdraw/payout
 }); // End of contract
+
+/*
+  Errors:
+  - Uncaught ReferenceError: regeneratorRuntime is not defined // 
+  - no events were emitted // enums are not supported in ABI
+  - 1) Contract: EmploymentRecord should create and map owner:
+       AssertionError: whoop: expected { Object (s, e, ...) } to equal 1
+      // ___.valueOf();
+  - Test "2 should create and map owner" not making any changes onto the blockchain
+      Not showing any changes when accessed.
+      // <call>.call() is a call and does not change the blockchain
+      // <transaction>() is a transaction and does change the blockchain
+  - truffle Error: VM Exception while processing transaction: revert
+      // Forgotten to make the testSetEmployee modular again, and the second call to it in Test 3 failed it
+*/
 
 // [1] Truffle JS Test Documentation: http://truffleframework.com/docs/getting_started/javascript-tests
 // [2] Medium Article on Truffle async / await: https://medium.com/@angellopozo/testing-solidity-with-truffle-and-async-await-396e81c54f93

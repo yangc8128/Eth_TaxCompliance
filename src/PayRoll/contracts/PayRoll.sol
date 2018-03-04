@@ -56,7 +56,6 @@ contract EmploymentRecord is Owned, Mutex {
 
     // Consider making payable for during creation
     function createPayment(
-        EmploymentType _status,
         address _employer,
         address _employee,
         uint256 _pay,
@@ -72,6 +71,8 @@ contract EmploymentRecord is Owned, Mutex {
 
         Payment p = Payment(paymentContracts[_employee]);
         require(!p.active());
+
+        var _status = employees[_employee].status;
 
         // Creating different payment contracts based off the employment types
         if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
@@ -116,6 +117,10 @@ contract EmploymentRecord is Owned, Mutex {
         employees[_employee].status = _status;
     }
 
+    function getEmployeeCount( ) public constant returns(uint256 _length) {
+        return employeeIndex.length;
+    }
+
     function getPaymentContractCount( ) public constant returns(uint256 _length) {
         return paymentIndex.length;
     }
@@ -147,7 +152,7 @@ contract Payment is Owned {
         employer = _employer;
         employee = _employee;
         payPer = _pay;
-        freq = FREQUENCIES[_freq];
+        freq = FREQUENCIES[_freq]; // Possible error with invalid Frequencies
         endTime = now + _endTime;
         lastUpdate = now;
         owed = 0;
