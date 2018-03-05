@@ -52,6 +52,11 @@
  * 
  * Use a Contract at a specific address? [http://truffleframework.com/docs/getting_started/contracts#use-a-contract-at-a-specific-address]
  * 
+ * Return values on transactions vs calls?
+ *    No you cannot recieve return values from transactions, only contracts see those.
+ *    Only calls have accessible return values to non-contracts.
+*     https://ethereum.stackexchange.com/questions/16291/truffle-call-that-returns-contract-is-returning-tx
+ * 
  * Truffle Test Reference: http://www.zohaib.me/reusable-code-in-solidity-using-library/
  * Diving a MegaFactory into Smaller ones: https://ethereum.stackexchange.com/questions/12698/need-help-to-break-down-large-contract
  */
@@ -108,38 +113,63 @@ contract('EmploymentRecord', function(accounts) {
   it("5 should create and map contract employee", async function() {
     testSetEmployee(3, accounts[3], "Contract");
   });
-/*
+
   // Consider making frequency just input for seconds
-  var pay = 250000;
-  var freq = 1;
-  var endTime = 31556926;
+  //var pay = 250000;
+  //var freq = 1;
+  //var endTime = 31556926;
 
-  const testCreatePayment = async function(acctID, errorStatement) {
-    let payAddr = await instance.createPayment.call(instance.owner,acctID,pay,freq,endTime);
-    var createdPaymentAddr = instance.paymentContracts[acctID];
-    assert.equal(payAddr, createdPaymentAddr, errorStatement);
-  }
-  it("should create and map a Payment for existing employee", async function() {
+  /*
+  const testCreatePayment = async function(instance, acctID, errorStatement) {
+    // Active Employee Check
+    //let activeStatus = await instance.accessEmployee.call(acctID);
+    //assert.equal(activeStatus.valueOf(), true, "Non-existent employee");
+
+    // Creating Payment
+    var countBefore = await instance.getPaymentContractsCount.call();
+    await instance.createPayment(acctID);
+    var countAfter = await instance.getPaymentContractsCount.call();
+    console.log(countAfter.valueOf());
+    console.log((++countBefore).valueOf());
+    assert.equal(countAfter.valueOf(), countBefore.valueOf(), errorStatement);
+  }*/
+  it("6 should create and map a Payment for existing employee", async function() {
     let instance = await EmploymentRecord.deployed();
-    testCreatePayment(accounts[1],"Payment not successfully created and mapped");
+    //testCreatePayment(instance, accounts[1],"Payment not successfully created and mapped");
+
+    var countBefore = await instance.getPaymentContractsCount.call();
+    await instance.createPayment(accounts[1]);
+    var countAfter = await instance.getPaymentContractsCount.call();
+    assert.equal(countAfter.valueOf(), (++countBefore).valueOf(), "Payment not successfully created and mapped");
   });
-  it("should fail to create and map a Payment for nonexisting employee", async function() {
+  it("7 should fail to create and map a Payment for nonexisting employee", async function() {
     let instance = await EmploymentRecord.deployed();
-    testCreatePayment(accounts[5],"Incorrect payment successfully created and mapped");
-    // TODO
+    //testCreatePayment(accounts[5],"Incorrect payment successfully created and mapped");
+
+    // Active Employee Check
+    let activeStatus = await instance.accessEmployee.call(accounts[5]);
+    assert.notEqual(activeStatus.valueOf(), false, "Non-existent employee");
+
+    var countBefore = await instance.getPaymentContractsCount.call();
+    await instance.createPayment(accounts[5]);
+    var countAfter = await instance.getPaymentContractsCount.call();
+    assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
   });
-  it("should fail to create and map a Payment for nonactive employee", async function() {
+
+  it("8 should fail to create and map a Payment for nonactive employee", async function() {
     let instance = await EmploymentRecord.deployed();
-    await instance.updateEmployeeActiveFlag.call(accounts[1], false);
-    assert.equal(instance.employees[accounts[1]],false, "Account is still active");
+    await instance.updateEmployeeActiveFlag(accounts[1], false);
+
+    // Active Employee Check
+    let activeStatus = await instance.accessEmployee.call(accounts[1]);
+    assert.notEqual(activeStatus.valueOf(), false, "Account is still active");
     //testCreatePayment(accounts[1],"Incorrect payment successfully created and mapped");
-    // TODO
   });
-
+/*
 
   // Requires timemachine, accounts that are not accounts[0]
   // Attempt to timely ask for a withdraw on a Payment from employee
-  it("should pay employee from Payment", async function() {
+  it("9 should pay employee from Payment", async function() {
     let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
@@ -159,7 +189,7 @@ contract('EmploymentRecord', function(accounts) {
   });
   // Why are these necessary? What errors will be faced? Possibly will payout anyways
   // Attempt to prematurely withdraw Payment from employee
-  it("should fail to prematurely pay employee from Payment", async function() {
+  it("10 should fail to prematurely pay employee from Payment", async function() {
     let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
@@ -174,7 +204,7 @@ contract('EmploymentRecord', function(accounts) {
   });
 
   // Attempt to prematurely withdraw Payment from owner
-  it("should fail to prematurely pay to Owner from Payment", async function() {
+  it("11 should fail to prematurely pay to Owner from Payment", async function() {
     let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
@@ -188,7 +218,7 @@ contract('EmploymentRecord', function(accounts) {
     assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
   });
   // Attempt to prematurely withdraw Payment from stranger
-  it("should fail to prematurely pay wrong recipient from Payment", async function() {
+  it("12 should fail to prematurely pay wrong recipient from Payment", async function() {
     let instance = await EmploymentRecord.deployed();
     let paymentAddress = await instance.paymentContracts[accounts[1]];
     let paymentInstance = Payment.at(paymentAddress);
@@ -218,6 +248,7 @@ contract('EmploymentRecord', function(accounts) {
       // <transaction>() is a transaction and does change the blockchain
   - truffle Error: VM Exception while processing transaction: revert
       // Forgotten to make the testSetEmployee modular again, and the second call to it in Test 3 failed it
+      // It means a revert was called within the contract code
 */
 
 // [1] Truffle JS Test Documentation: http://truffleframework.com/docs/getting_started/javascript-tests

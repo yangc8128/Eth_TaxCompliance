@@ -44,7 +44,7 @@ contract EmploymentRecord is Owned, Mutex {
         employees[_addr] = e;
         employeeIndex.push(_addr);
 
-        EmployeeCreationEvent();
+        //EmployeeCreationEvent();
     }
 
     // Access an Employee by its address, and returns an event for the DApp
@@ -56,24 +56,30 @@ contract EmploymentRecord is Owned, Mutex {
 
     // Consider making payable for during creation
     function createPayment(
-        address _employer,
-        address _employee,
-        uint256 _pay,
-        uint256 _freq,
-        uint256 _end
+        address _employee
+        //uint256 _pay,
+        //uint256 _freq,
+        //uint256 _end
     )
         public
         onlyOwner
-        returns(address _newPayment)
     {
         require(paymentIndex.length < 100);
-        require(!employees[_employee].active);
-
-        Payment p = Payment(paymentContracts[_employee]);
+        require(employees[_employee].active);
+/*
+        PermanentPay p = PermanentPay(paymentContracts[_employee]);
         require(!p.active());
+*/
+//        var _status = employees[_employee].status;
+        
+        uint256 _pay = 250000;
+        uint256 _freq = 1;
+        PermanentPay _perm = new PermanentPay(owner,_employee,_pay,_freq);
+        paymentContracts[_employee] = _perm;
+        paymentIndex.push(_perm);
 
-        var _status = employees[_employee].status;
-
+        //CheckPaymentEvent(paymentContracts[_employee]);
+       /*
         // Creating different payment contracts based off the employment types
         if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
             PermanentPay _perm = new PermanentPay(_employer,_employee,_pay,_freq);
@@ -92,8 +98,8 @@ contract EmploymentRecord is Owned, Mutex {
             return _contract;
         } else {
             revert();
-        }
-        CheckPaymentEvent(paymentContracts[_employee]);
+        } */
+        //CheckPaymentEvent(paymentContracts[_employee]);
     }
 
     function checkPayment() external noReentrancy {
@@ -121,7 +127,7 @@ contract EmploymentRecord is Owned, Mutex {
         return employeeIndex.length;
     }
 
-    function getPaymentContractCount( ) public constant returns(uint256 _length) {
+    function getPaymentContractsCount( ) public constant returns(uint256 _length) {
         return paymentIndex.length;
     }
 }
