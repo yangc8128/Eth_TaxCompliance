@@ -2,133 +2,86 @@ pragma solidity ^0.4.16;
 
 import "./SafeContract.sol";
 import "./SafeMath.sol";
+import { EmployeeMap } from "./PayRollLib.sol";
+import { PaymentContractMap } from "./PayRollLib.sol";
 
 contract EmploymentRecord is Owned, Mutex {
-    enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
     event EmployeeCreationEvent( );
     event CheckPaymentEvent(address paymentContract);
     event AccessEmployeeEvent(
         bool active,
-        EmploymentType status,
+        EmployeeMap.EmploymentType status,
         bytes16 fName,
         bytes16 lName
     );
-    struct Employee {
-        bool active;
-        EmploymentType status;
-        bytes16 fName;
-        bytes16 lName;
-    }
 
-    // maps employee address to a employee struct
-    mapping (address => Employee) public employees;
-    address[] public employeeIndex;
-
-    // maps employee address to contract address
-    mapping (address => address) public paymentContracts;
-    address[] public paymentIndex;
+    EmployeeMap.Data private _employeeMap;
+    PaymentContractMap.Data private _paymentContractMap;
 
     function setEmployee(
-        EmploymentType _status,
-        address _addr,
+        uint _status,
         bytes16 _fName,
-        bytes16 _lName
+        bytes16 _lName,
+        address _addr
     )
         public
         onlyOwner
     {
-        require(employees[_addr].active == false);
-
-        // Creating new Employee and recording the address
-        Employee memory e = Employee(true,_status, _fName, _lName);
-        employees[_addr] = e;
-        employeeIndex.push(_addr);
-
-        //EmployeeCreationEvent();
+        _employeeMap.insert(_status,_fName,_lName,_addr);
+        EmployeeCreationEvent();
     }
 
     // Access an Employee by its address, and returns an event for the DApp
     function accessEmployee(address _addr) external noReentrancy returns(bool) {
-        Employee memory e = employees[_addr];
+        EmployeeMap.Employee memory e = _employeeMap.getMap(_addr);
         AccessEmployeeEvent(e.active,e.status,e.fName,e.lName);
         return e.active;
     }
 
     // Consider making payable for during creation
     function createPayment(
-        address _employee
-        //uint256 _pay,
-        //uint256 _freq,
-        //uint256 _end
+        address _employee,
+        uint256 _pay,
+        uint256 _freq,
+        uint256 _end
     )
         public
         onlyOwner
     {
-        require(paymentIndex.length < 100);
-        require(employees[_employee].active);
- /*
-        PermanentPay p = PermanentPay(paymentContracts[_employee]);
+        _paymentContractMap.requireSmallPayInded(100);
+        _employeeMap.requireActiveEmpl(_employee);
+   /*
+        Payment p = Permanent(paymentContracts[_employee]);
         require(!p.active());
- */
- //       var _status = employees[_employee].status;
-        
-        uint256 _pay = 250000;
-        uint256 _freq = 1;
-        PermanentPay _perm = new PermanentPay(owner,_employee,_pay,_freq);
-        paymentContracts[_employee] = _perm;
-        paymentIndex.push(_perm);
+   */
+        var _status = _employeeMap.getMap(_employee).status;
 
-        //CheckPaymentEvent(paymentContracts[_employee]);
-       /*
         // Creating different payment contracts based off the employment types
         if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
-            PermanentPay _perm = new PermanentPay(_employer,_employee,_pay,_freq);
-            paymentContracts[_employee] = _perm;
-            paymentIndex.push(_perm);
-            return _perm;
+            PermanentPay _perm = new PermanentPay(owner,_employee,_pay,_freq);
+            _paymentContractMap.insert(_perm);
         } else if (_status == EmploymentRecord.EmploymentType.CASUAL) {
-            CasualPay _casual = new CasualPay(_employer,_employee,_pay);
-            paymentContracts[_employee] = _casual;
-            paymentIndex.push(_casual);
-            return _casual;
+            CasualPay _casual = new CasualPay(owner,_employee,_pay);
+            _paymentContractMap.insert(_casual);
         } else if (_status == EmploymentRecord.EmploymentType.CONTRACT) {
-            ContractPay _contract = new ContractPay(_employer,_employee,_pay,_freq,_end);
-            paymentContracts[_employee] = _contract;
-            paymentIndex.push(_contract);
-            return _contract;
+            ContractPay _contract = new ContractPay(owner,_employee,_pay,_freq,_end);
+            _paymentContractMap.insert(_contract);
         } else {
             revert();
-        } */
-        //CheckPaymentEvent(paymentContracts[_employee]);
+        } 
+        CheckPaymentEvent(_paymentContractMap.getMap(_employee));
     }
 
     function checkPayment() external noReentrancy {
         // Ensuring that only the exact employee can access and that the employee is active
-        require(employees[msg.sender].active);
-        CheckPaymentEvent(paymentContracts[msg.sender]);
+        _employeeMap.requireActiveEmpl(msg.sender);
+        CheckPaymentEvent(_paymentContractMap.getMap(msg.sender));
     }
 
     function ownerCheckPayment(address _employee) external onlyOwner {
         // Ensuring the only the employee is active
-        require(employees[_employee].active);
-        CheckPaymentEvent(paymentContracts[_employee]);
-    }
-
-
-    function updateEmployeeActiveFlag(address _employee, bool _active) public onlyOwner {
-        employees[_employee].active = _active;
-    }
-
-    function updateEmployeeStatus(address _employee, EmploymentType _status) public onlyOwner {
-        employees[_employee].status = _status;
-    }
-
-    function getEmployeeCount( ) public constant returns(uint256 _length) {
-        return employeeIndex.length;
-    }
-
-    function getPaymentContractsCount( ) public constant returns(uint256 _length) {
-        return paymentIndex.length;
+        _employeeMap.requireActiveEmpl(_employee);
+        CheckPaymentEvent(_paymentContractMap.getMap(_employee));
     }
 }
 
