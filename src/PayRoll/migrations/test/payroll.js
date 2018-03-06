@@ -53,15 +53,15 @@ contract('EmploymentRecord', function(accounts) {
   });
 
   // Consider making frequency just input for seconds
-  //var pay = 250000;
-  //var freq = 1;
-  //var endTime = 31556926;
+  var pay_init = 250000;
+  var freq_init = 4;
+  var endTime_init = 31556926;
 
   it("6 should create and map a Payment for existing employee", async function() {
     let instance = await EmploymentRecord.deployed();
 
     var countBefore = await instance.getPaymentContractsCount.call();
-    await instance.createPayment(accounts[1]);
+    await instance.createPayment(accounts[1], pay_init, freq_init, endTime_init);
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.equal(countAfter.valueOf(), (++countBefore).valueOf(), "Payment not successfully created and mapped");
   });
@@ -115,21 +115,26 @@ contract('EmploymentRecord', function(accounts) {
     let balanceAfter = await web3.eth.getBalance(accounts[1]);
     assert.notEqual(balanceBefore.valueOf(), balanceAfter.valueOf(), "Payment was not successful");
   }); // TODO: TIMEMACHINE IS COMMENTED OUT
-  /*
+/*
   // Why are these necessary? What errors will be faced? Possibly will payout anyways
   // Attempt to prematurely withdraw Payment from employee
   it("10 should fail to prematurely pay employee from Payment", async function() {
     let instance = await EmploymentRecord.deployed();
-    let paymentAddress = await instance.paymentContracts[accounts[1]];
+
+    let paymentAddress = await instance.paymentContracts.call(accounts[1]);
     let paymentInstance = Payment.at(paymentAddress);
 
-    var pay = paymentInstance.payPer;
-    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+    let pay = await paymentInstance.payPer.call();
+
+    let balanceOwnerBefore = await web3.eth.getBalance(paymentAddress);
+    await paymentInstance.payout( {from: accounts[0], value: pay.valueOf()} );
+    let balanceOwnerAfter = await web3.eth.getBalance(paymentAddress);
+    assert.notEqual(balanceOwnerAfter.valueOf(), balanceOwnerBefore.valueOf(), "Owner payout was not successful");
 
     let balanceBefore = await web3.eth.getBalance(accounts[1]);
-    await paymentInstance.withdraw.call( {from: acounts[1]} );
+    await paymentInstance.withdraw( {from: acounts[1]} );
     let balanceAfter = await web3.eth.getBalance(accounts[1]);
-    assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
+    assert.notEqual(balanceAfter.valueOf(), balanceBefore.valueOf(), "Payment was not successful");
   });
 
   // Attempt to prematurely withdraw Payment from owner
@@ -139,10 +144,10 @@ contract('EmploymentRecord', function(accounts) {
     let paymentInstance = Payment.at(paymentAddress);
 
     var pay = paymentInstance.payPer;
-    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+    await paymentInstance.payout( {from: accounts[0], value: pay} );
 
     let balanceBefore = await web3.eth.getBalance(accounts[0]);
-    await paymentInstance.withdraw.call( {from: acounts[0]} );
+    await paymentInstance.withdraw( {from: acounts[0]} );
     let balanceAfter = await web3.eth.getBalance(accounts[0]);
     assert.equals(balanceBefore + pay, balanceAfter, "Payment was not successful");
   });
@@ -153,10 +158,10 @@ contract('EmploymentRecord', function(accounts) {
     let paymentInstance = Payment.at(paymentAddress);
 
     var pay = paymentInstance.payPer;
-    await paymentInstance.payOut.call( {from: accounts[0], value: pay} );
+    await paymentInstance.payout( {from: accounts[0], value: pay} );
 
     let balanceBefore = await web3.eth.getBalance(accounts[5]);
-    await paymentInstance.withdraw.call( {from: acounts[5]} );
+    await paymentInstance.withdraw( {from: acounts[5]} );
     let balanceAfter = await web3.eth.getBalance(accounts[5]);
     assert.equals(balanceBefore + pay, balanceAfter, "Payment was successful");
   });
