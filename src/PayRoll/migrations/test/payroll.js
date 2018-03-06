@@ -65,27 +65,32 @@ contract('EmploymentRecord', function(accounts) {
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.equal(countAfter.valueOf(), (++countBefore).valueOf(), "Payment not successfully created and mapped");
   });
-  // Force Failed Tests
 /*
+  // Force Failed Tests <PASSED at failing>
   it("7 should fail to create and map a Payment for nonexisting employee", async function() {
     let instance = await EmploymentRecord.deployed();
 
     // Active Employee Check
     let activeStatus = await instance.accessEmployee.call(accounts[5]);
-    assert.notEqual(activeStatus.valueOf(), false, "Non-existent employee");
+    assert.equal(activeStatus.valueOf(), false, "Employee exists");
 
     var countBefore = await instance.getPaymentContractsCount.call();
-    await instance.createPayment(accounts[5]);
+    await instance.createPayment(accounts[5], pay_init, freq_init, endTime_init);
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
   });
   it("8 should fail to create and map a Payment for nonactive employee", async function() {
     let instance = await EmploymentRecord.deployed();
-    await instance.updateEmployeeActiveFlag(accounts[1], false);
+    await instance.updateEmployeeActiveFlag(accounts[2], false);
 
     // Active Employee Check
-    let activeStatus = await instance.accessEmployee.call(accounts[1]);
-    assert.notEqual(activeStatus.valueOf(), false, "Account is still active");
+    let activeStatus = await instance.accessEmployee.call(accounts[2]);
+    assert.equal(activeStatus.valueOf(), false, "Account is still active");
+
+    var countBefore = await instance.getPaymentContractsCount.call();
+    await instance.createPayment(accounts[2], pay_init, freq_init, endTime_init);
+    var countAfter = await instance.getPaymentContractsCount.call();
+    assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
   });
 */
 
@@ -115,6 +120,7 @@ contract('EmploymentRecord', function(accounts) {
     let balanceAfter = await web3.eth.getBalance(accounts[1]);
     assert.notEqual(balanceBefore.valueOf(), balanceAfter.valueOf(), "Payment was not successful");
   }); // TODO: TIMEMACHINE IS COMMENTED OUT
+
 /*
   // Why are these necessary? What errors will be faced? Possibly will payout anyways
   // Attempt to prematurely withdraw Payment from employee

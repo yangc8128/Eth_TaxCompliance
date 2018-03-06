@@ -56,50 +56,42 @@ contract EmploymentRecord is Owned, Mutex {
 
     // Consider making payable for during creation
     function createPayment(
-        address _employee
-        //uint256 _pay,
-        //uint256 _freq,
-        //uint256 _end
+        address _employee,
+        uint256 _pay,
+        uint256 _freq,
+        uint256 _end
     )
         public
         onlyOwner
     {
         require(paymentIndex.length < 100);
         require(employees[_employee].active);
- /*
-        PermanentPay p = PermanentPay(paymentContracts[_employee]);
-        require(!p.active());
- */
- //       var _status = employees[_employee].status;
-        
-        uint256 _pay = 250000;
-        uint256 _freq = 1;
-        PermanentPay _perm = new PermanentPay(owner,_employee,_pay,_freq);
-        paymentContracts[_employee] = _perm;
-        paymentIndex.push(_perm);
 
-        //CheckPaymentEvent(paymentContracts[_employee]);
-       /*
+        // Using EVM assembly code to check active/unactive contract: https://stackoverflow.com/questions/37644395/how-to-find-out-if-an-ethereum-address-is-a-contract
+        uint size;
+        address payAddr = paymentContracts[_employee];
+        assembly { size := extcodesize(payAddr) }
+        require(size == 0);
+
+        var _status = employees[_employee].status;
+
         // Creating different payment contracts based off the employment types
         if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
-            PermanentPay _perm = new PermanentPay(_employer,_employee,_pay,_freq);
+            PermanentPay _perm = new PermanentPay(owner,_employee,_pay,_freq);
             paymentContracts[_employee] = _perm;
             paymentIndex.push(_perm);
-            return _perm;
         } else if (_status == EmploymentRecord.EmploymentType.CASUAL) {
-            CasualPay _casual = new CasualPay(_employer,_employee,_pay);
+            CasualPay _casual = new CasualPay(owner,_employee,_pay);
             paymentContracts[_employee] = _casual;
             paymentIndex.push(_casual);
-            return _casual;
         } else if (_status == EmploymentRecord.EmploymentType.CONTRACT) {
-            ContractPay _contract = new ContractPay(_employer,_employee,_pay,_freq,_end);
+            ContractPay _contract = new ContractPay(owner,_employee,_pay,_freq,_end);
             paymentContracts[_employee] = _contract;
             paymentIndex.push(_contract);
-            return _contract;
         } else {
             revert();
-        } */
-        //CheckPaymentEvent(paymentContracts[_employee]);
+        }
+        CheckPaymentEvent(paymentContracts[_employee]);
     }
 
     function checkPayment() external noReentrancy {
