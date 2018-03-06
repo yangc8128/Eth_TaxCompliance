@@ -11,17 +11,26 @@ var EmploymentRecord = artifacts.require("EmploymentRecord");
 var Payment = artifacts.require("Payment");
 
 // Helper Test Function
-const timeTravel = function (time) {
+const increaseTime = function(duration) {
+  const id = Date.now()
+
   return new Promise((resolve, reject) => {
     web3.currentProvider.sendAsync({
-      jsonrpc: "2.0",
-      method: "evm_increaseTime",
-      params: [time], // 86400 is num seconds in day
-      id: new Date().getTime()
-    }, (err, result) => {
-      if(err){ return reject(err) }
-      return resolve(result)
-    });
+      jsonrpc: '2.0',
+      method: 'evm_increaseTime',
+      params: [duration],
+      id: id,
+    }, err1 => {
+      if (err1) return reject(err1)
+
+      web3.currentProvider.sendAsync({
+        jsonrpc: '2.0',
+        method: 'evm_mine',
+        id: id+1,
+      }, (err2, res) => {
+        return err2 ? reject(err2) : resolve(res)
+      })
+    })
   })
 }
 
@@ -65,7 +74,7 @@ contract('EmploymentRecord', function(accounts) {
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.equal(countAfter.valueOf(), (++countBefore).valueOf(), "Payment not successfully created and mapped");
   });
-/*
+ /*
   // Force Failed Tests <PASSED at failing>
   it("7 should fail to create and map a Payment for nonexisting employee", async function() {
     let instance = await EmploymentRecord.deployed();
@@ -92,8 +101,7 @@ contract('EmploymentRecord', function(accounts) {
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
   });
-*/
-
+ */
 
   // Requires timemachine, accounts that are not accounts[0]
   // Attempt to timely ask for a withdraw on a Payment from employee
@@ -105,15 +113,19 @@ contract('EmploymentRecord', function(accounts) {
 
     let pay = await paymentInstance.payPer.call();
     let freq = await paymentInstance.freq.call();
+    console.log(freq.valueOf());
+
+    // Timemachine call
+    //await increaseTime(freq.valueOf());
+    console.log(freq.valueOf());
 
     let balanceOwnerBefore = await web3.eth.getBalance(paymentAddress);
     await paymentInstance.payout( {from: accounts[0], value: pay.valueOf()} );
     let balanceOwnerAfter = await web3.eth.getBalance(paymentAddress);
     assert.notEqual(balanceOwnerAfter.valueOf(), balanceOwnerBefore.valueOf(), "Owner payout was not successful");
 
-    // Timemachine call
-    //await timeTravel(freq.valueOf());
-    //await mineBlock(); // workaround for https://github.com/ethereumjs/testrpc/issues/336
+    // Reverting to correct block
+    //await increaseTime(-freq.valueOf());
 
     let balanceBefore = await web3.eth.getBalance(accounts[1]);
     await paymentInstance.withdraw( {from: accounts[1]} );
