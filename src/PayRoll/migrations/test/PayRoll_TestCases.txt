@@ -1,0 +1,28 @@
+timeTravel: Helper function to assist in time depenent features
+testSetEmployee: Helper function
+testCreatePayment: Helper function
+
+Test:
+- confirm owner of PayRoll is address[0]
+
+- test the creation of an Owner
+- test the creation of a Permanent
+- test the creation of a Casual
+- test the creation of a Contract
+
+// Require timemachine
+- test the creation of a Payment for Permanent
+    >> Include periodic polling to simulate multiple pay cycles
+- test the creation of a Payment for Casual
+    >> Include two pollings to simulate the one-time pay
+- test the creation of a Payment for Contract
+    >> Include periodic polling past endTime to simulate multiple pay cycles
+
+// Failure Criteria
+- test the creation of nonexisting employee
+- test the creation of nonactive employee
+
+- test premature payout Payment from employee
+- test premature payout Payment from owner
+- test premature payout from stranger (e.g. accounts[5])
+- test premature kill of Payment
