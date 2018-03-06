@@ -66,11 +66,11 @@ contract EmploymentRecord is Owned, Mutex {
     {
         require(paymentIndex.length < 100);
         require(employees[_employee].active);
-/*
+ /*
         PermanentPay p = PermanentPay(paymentContracts[_employee]);
         require(!p.active());
-*/
-//        var _status = employees[_employee].status;
+ */
+ //       var _status = employees[_employee].status;
         
         uint256 _pay = 250000;
         uint256 _freq = 1;
@@ -136,13 +136,14 @@ contract EmploymentRecord is Owned, Mutex {
 contract Payment is Owned {
     event PaymentCreationEvent( );
     event PaymentEvent (
-        bytes16 msg,
+        bytes8 msg,
         uint256 pay,
-        uint256 datePaid
+        uint256 datePaid,
+        uint256 bal
     );
 
     address employer; address employee;
-    uint256 lastUpdate; uint256 payPer; uint256 freq; uint256 endTime; uint256 owed;
+    uint256 lastUpdate; uint256 public payPer; uint256 public freq; uint256 endTime; uint256 owed;
     uint256[] private FREQUENCIES = [0, 0.5 weeks, 1 weeks, 2 weeks, 4 weeks];
 
     // Considering making it payable
@@ -173,13 +174,13 @@ contract Payment is Owned {
 
         // Money Transfer
         if (owed > this.balance) {
-            PaymentEvent("Pending",owed,now);
+            PaymentEvent("Pending",owed,now,this.balance);
         } else {
             uint balanceBefore = this.balance;
             employee.transfer(owed);
             assert(this.balance == balanceBefore-owed);
 
-            PaymentEvent("Success",owed,now);
+            PaymentEvent("Success",owed,now,this.balance);
         }
     }
 
@@ -192,9 +193,9 @@ contract Payment is Owned {
 
         // Ensuring that Payment is capable of paying
         if (owed > this.balance) {
-            PaymentEvent("Pending",owed,now);
+            PaymentEvent("Pending",owed,now,this.balance);
         } else {
-            PaymentEvent("Applied",owed,now);
+            PaymentEvent("Applied",owed,now,this.balance);
         }
     }
 
