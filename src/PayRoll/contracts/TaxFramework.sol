@@ -74,13 +74,16 @@ contract TaxReturn is Owned {
 }
 
 
+// https://ethereum.stackexchange.com/questions/7325/stack-too-deep-try-removing-local-variables
+// The stack on Ethereum is only 7 deep
+
 // Depends on preexisting TaxReturn contract
 // Recall owner is directly the service provider, or employer
 contract Taxable is Owned {
     uint8 taxType;
     uint64 withHolding;
     address taxReturnId;
-    address taxAgencyId;
+    //address taxAgencyId;
 
     modifier taxableIncome {
         _;
@@ -88,10 +91,31 @@ contract Taxable is Owned {
         assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(TaxReturn.TaxType,uint64)")), TaxReturn.TaxType(taxType), withHolding));
     }
 
-    function Taxable(address _addrReturn, address _addrAgency, uint8 _taxType, uint64 _withHold) public {
+    function setTaxable(
+        address _addrReturn,
+        //address _addrAgency,
+        uint8 _taxType,
+        uint64 _withHold
+    )
+        public
+    {
         taxReturnId = _addrReturn;
-        taxAgencyId = _addrAgency;
+        //taxAgencyId = _addrAgency;
         taxType = _taxType;
         withHolding = _withHold;
     }
+/*
+    function Taxable(
+        address _addrReturn,
+        //address _addrAgency,
+        uint8 _taxType,
+        uint64 _withHold
+    )
+        public
+    {
+        taxReturnId = _addrReturn;
+        //taxAgencyId = _addrAgency;
+        taxType = _taxType;
+        withHolding = _withHold;
+    } */
 }

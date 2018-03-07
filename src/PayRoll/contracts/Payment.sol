@@ -21,11 +21,15 @@ contract Payment is Owned, Mutex, Taxable {
     // Considering making it payable
     function Payment(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay,
         uint256 _freq,
         uint256 _endTime
     )
+        //Taxable(_addrReturn,_taxType,_withHold)
         public
     {
         employer = _employer;
@@ -78,11 +82,14 @@ contract Payment is Owned, Mutex, Taxable {
 contract PermanentPay is Payment {
     function PermanentPay(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay,
         uint256 _freq
     )
-        Payment(_employer,_employee, _pay, _freq, 0)
+        Payment(_employer,_employee,_pay, _freq, 0)
         public
     { }
 
@@ -97,7 +104,10 @@ contract PermanentPay is Payment {
 contract CasualPay is Payment {
     function CasualPay(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay
     )
         Payment(_employer,_employee,_pay,0,0)
@@ -112,7 +122,10 @@ contract CasualPay is Payment {
 contract ContractPay is Payment {
     function ContractPay(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay,
         uint256 _freq,
         uint256 _endTime

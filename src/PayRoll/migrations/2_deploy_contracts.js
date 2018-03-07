@@ -14,15 +14,18 @@ module.exports = function(deployer) {
   deployer.link(ConvertLib, MetaCoin);
   deployer.deploy(MetaCoin);
   // payroll.js
+  // Dependencies
   deployer.deploy(Owned);
   deployer.deploy(Mutex);
   deployer.deploy(SafeMath);
   deployer.deploy(TaxAgency);
+  // Linking Dependencies
   deployer.link(TaxAgency,FederalTaxation);
   deployer.link(TaxAgency,StateTaxation);
   deployer.link(Owned, EmploymentRecord);
   deployer.link(Mutex, EmploymentRecord);
   deployer.link(SafeMath,EmploymentRecord);
+  // Deploying Dapp
   deployer.deploy(EmploymentRecord);
 };
 

@@ -56,6 +56,22 @@ contract EmploymentRecord is Owned, Mutex {
         return e.active;
     }
 
+    function setPayment(
+        address _employee,
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,
+        uint256 _pay,
+        uint256 _freq,
+        uint256 _end
+    )
+        public
+        onlyOwner
+    {
+        createPayment(_employee,_pay,_freq,_end);
+        setTaxes(_employee,_addrReturn,_taxType,_withHold);
+    }
+
     // Consider making payable for during creation
     function createPayment(
         address _employee,
@@ -63,8 +79,7 @@ contract EmploymentRecord is Owned, Mutex {
         uint256 _freq,
         uint256 _end
     )
-        public
-        onlyOwner
+        internal
     {
         require(paymentIndex.length < 100);
         require(employees[_employee].active);
@@ -95,6 +110,24 @@ contract EmploymentRecord is Owned, Mutex {
             revert();
         }
         CheckPaymentEvent(paymentContracts[_employee]);
+    }
+
+    function setTaxes(
+        address _employee,
+        address _addrReturn,
+        uint8 _type,
+        uint64 _withHold
+    )
+        internal
+    {
+        require(employees[_employee].active);
+        address _payAddr = paymentContracts[_employee];
+        uint size;
+        assembly { size := extcodesize(_payAddr) }
+        Payment p = Payment(_payAddr);
+        require(size != 0 || p.active());
+
+        p.setTaxable(_addrReturn, _type, _withHold);
     }
 
     function checkPayment() external noReentrancy {
