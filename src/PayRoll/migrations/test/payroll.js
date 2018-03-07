@@ -78,6 +78,10 @@ contract('EmploymentRecord', function(accounts) {
     testSetEmployee(3, accounts[3], "Contract");
   });
 
+  it("Pre-6 should create Tax Returns / Tax Report for all mapped employees", async function() {
+    
+  })
+
   // Consider making frequency just input for seconds
   var pay_init = 250000;
   var freq_init = 4;

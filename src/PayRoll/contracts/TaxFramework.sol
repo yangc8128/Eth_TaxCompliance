@@ -12,7 +12,6 @@ contract TaxAgency is Owned {
         bool isIndividual;
         bool active;
         uint8 entityType;
-        //uint32 taxId; // at most a 10 digit number
         bytes32 taxEntityName;
     }
 
@@ -25,7 +24,6 @@ contract TaxAgency is Owned {
         bool _isDomestic,
         bool _isIndividual,
         uint8 _type,
-        //uint32 _taxId,
         bytes32 _name
     )
         public
@@ -93,29 +91,13 @@ contract Taxable is Owned {
 
     function setTaxable(
         address _addrReturn,
-        //address _addrAgency,
         uint8 _taxType,
         uint64 _withHold
     )
         public
     {
         taxReturnId = _addrReturn;
-        //taxAgencyId = _addrAgency;
         taxType = _taxType;
         withHolding = _withHold;
     }
-/*
-    function Taxable(
-        address _addrReturn,
-        //address _addrAgency,
-        uint8 _taxType,
-        uint64 _withHold
-    )
-        public
-    {
-        taxReturnId = _addrReturn;
-        //taxAgencyId = _addrAgency;
-        taxType = _taxType;
-        withHolding = _withHold;
-    } */
 }

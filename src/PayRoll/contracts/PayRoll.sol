@@ -46,7 +46,7 @@ contract EmploymentRecord is Owned, Mutex {
         employees[_addr] = e;
         employeeIndex.push(_addr);
 
-        //EmployeeCreationEvent();
+        EmployeeCreationEvent();
     }
 
     // Access an Employee by its address, and returns an event for the DApp
