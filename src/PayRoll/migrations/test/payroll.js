@@ -3,12 +3,29 @@
  * Diving a MegaFactory into Smaller ones: https://ethereum.stackexchange.com/questions/12698/need-help-to-break-down-large-contract
  */
 
+/*
+  Errors:
+  - Uncaught ReferenceError: regeneratorRuntime is not defined // 
+  - no events were emitted // enums are not supported in ABI
+  - 1) Contract: EmploymentRecord should create and map owner:
+       AssertionError: whoop: expected { Object (s, e, ...) } to equal 1
+      // ___.valueOf();
+  - Test "2 should create and map owner" not making any changes onto the blockchain
+      Not showing any changes when accessed.
+      // <call>.call() is a call and does not change the blockchain
+      // <transaction>() is a transaction and does change the blockchain
+  - truffle Error: VM Exception while processing transaction: revert
+      // Forgotten to make the testSetEmployee modular again, and the second call to it in Test 3 failed it
+      // It means a revert was called within the contract code
+ */
+
 import 'babel-polyfill';
 //import './app';
 
 // Used for testing in application context
 var EmploymentRecord = artifacts.require("EmploymentRecord");
 var Payment = artifacts.require("Payment");
+var TaxAgency = artifacts.require("TaxAgency");
 
 // Helper Test Function
 const increaseTime = function(duration) {
@@ -65,6 +82,8 @@ contract('EmploymentRecord', function(accounts) {
   var pay_init = 250000;
   var freq_init = 4;
   var endTime_init = 31556926;
+  var taxType_init = 0;
+  var withHold_init = 0;
 
   it("6 should create and map a Payment for existing employee", async function() {
     let instance = await EmploymentRecord.deployed();
@@ -133,7 +152,7 @@ contract('EmploymentRecord', function(accounts) {
     assert.notEqual(balanceBefore.valueOf(), balanceAfter.valueOf(), "Payment was not successful");
   }); // TODO: TIMEMACHINE IS COMMENTED OUT
 
-/*
+ /*
   // Why are these necessary? What errors will be faced? Possibly will payout anyways
   // Attempt to prematurely withdraw Payment from employee
   it("10 should fail to prematurely pay employee from Payment", async function() {
@@ -188,17 +207,29 @@ contract('EmploymentRecord', function(accounts) {
 });
 
 /*
-  Errors:
-  - Uncaught ReferenceError: regeneratorRuntime is not defined // 
-  - no events were emitted // enums are not supported in ABI
-  - 1) Contract: EmploymentRecord should create and map owner:
-       AssertionError: whoop: expected { Object (s, e, ...) } to equal 1
-      // ___.valueOf();
-  - Test "2 should create and map owner" not making any changes onto the blockchain
-      Not showing any changes when accessed.
-      // <call>.call() is a call and does not change the blockchain
-      // <transaction>() is a transaction and does change the blockchain
-  - truffle Error: VM Exception while processing transaction: revert
-      // Forgotten to make the testSetEmployee modular again, and the second call to it in Test 3 failed it
-      // It means a revert was called within the contract code
+ * When do you define the __Taxable__ contract members?
+ * When to spawn a __TaxReturn__?
+ * Current Tax Framework Iteration: single Tax Agency
+ * Current Tax Framework Iteration: monitor employee income, not business income
+ * Second Tax Framework Iteration: two different levels of Tax Agencies
  */
+contract('TaxAgencies', function(accounts) {
+  it("should create some tax entities", async function() {
+    let instance = await TaxAgency.deployed();
+
+  });
+  it("should spawn some tax returns from tax entities", async function() {
+    let instance = await TaxAgency.deployed();
+
+    // spawn taxReturns
+  });
+  it("should apply report some taxable transactions to tax returns", async function() {
+    // Apply payroll
+    // Reference EmploymentRecord
+    // Check if payment still exists from prior contract test
+  });
+  it("should display logs of yearly (later account for non-yearly) taxable transactions from tax returns", async function() {
+    let instance = await TaxAgency.deployed();
+    // https://ethereum.stackexchange.com/questions/16313/how-can-i-view-event-logs-for-an-ethereum-contract?rq=1
+  });
+});

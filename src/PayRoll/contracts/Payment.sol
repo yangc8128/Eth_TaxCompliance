@@ -2,8 +2,9 @@ pragma solidity ^0.4.16;
 
 import "./SafeContract.sol";
 import "./SafeMath.sol";
+import "./TaxFramework.sol";
 
-contract Payment is Owned, Mutex {
+contract Payment is Owned, Mutex, Taxable {
     event PaymentCreationEvent( );
     event PaymentEvent (
         bytes8 msg,
@@ -13,17 +14,22 @@ contract Payment is Owned, Mutex {
     );
 
     address employer; address employee;
-    uint256 lastUpdate; uint256 public payPer; uint256 public freq; uint256 endTime; uint256 owed;
+    uint256 public payPer; uint256 public freq;
+    uint256 lastUpdate; uint256 endTime; uint256 owed;
     uint256[] private FREQUENCIES = [0, 0.5 weeks, 1 weeks, 2 weeks, 4 weeks];
 
     // Considering making it payable
     function Payment(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay,
         uint256 _freq,
         uint256 _endTime
     )
+        //Taxable(_addrReturn,_taxType,_withHold)
         public
     {
         employer = _employer;
@@ -37,7 +43,7 @@ contract Payment is Owned, Mutex {
     }
 
     // Functions only when payout was previously called
-    function withdraw( ) external payable noReentrancy {
+    function withdraw( ) external payable noReentrancy taxableIncome {
         // Withdrawal Authorization, Employee
         require(msg.sender == employee);
         require(owed > 0);
@@ -55,7 +61,7 @@ contract Payment is Owned, Mutex {
     }
 
     // Is required to refill a Payment contract for the Employee to withdraw
-    function payout( ) external payable noReentrancy {
+    function payout( ) external payable noReentrancy taxableIncome {
         // Payout Authorization, Employer
         require(msg.sender == employer);
         setPay();
@@ -76,11 +82,14 @@ contract Payment is Owned, Mutex {
 contract PermanentPay is Payment {
     function PermanentPay(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay,
         uint256 _freq
     )
-        Payment(_employer,_employee, _pay, _freq, 0)
+        Payment(_employer,_employee,_pay, _freq, 0)
         public
     { }
 
@@ -95,7 +104,10 @@ contract PermanentPay is Payment {
 contract CasualPay is Payment {
     function CasualPay(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay
     )
         Payment(_employer,_employee,_pay,0,0)
@@ -110,7 +122,10 @@ contract CasualPay is Payment {
 contract ContractPay is Payment {
     function ContractPay(
         address _employer,
-        address _employee,
+        address _employee,/*
+        address _addrReturn,
+        uint8 _taxType,
+        uint64 _withHold,*/
         uint256 _pay,
         uint256 _freq,
         uint256 _endTime
