@@ -82,6 +82,8 @@ contract('EmploymentRecord', function(accounts) {
   var pay_init = 250000;
   var freq_init = 4;
   var endTime_init = 31556926;
+  var taxType_init = 0;
+  var withHold_init = 0;
 
   it("6 should create and map a Payment for existing employee", async function() {
     let instance = await EmploymentRecord.deployed();
