@@ -12,7 +12,7 @@ contract TaxAgency is Owned {
         bool isIndividual;
         bool active;
         uint8 entityType;
-        uint32 taxId; // at most a 10 digit number
+        //uint32 taxId; // at most a 10 digit number
         bytes32 taxEntityName;
     }
 
@@ -25,7 +25,7 @@ contract TaxAgency is Owned {
         bool _isDomestic,
         bool _isIndividual,
         uint8 _type,
-        uint32 _taxId,
+        //uint32 _taxId,
         bytes32 _name
     )
         public
@@ -33,7 +33,7 @@ contract TaxAgency is Owned {
     {
         require(!taxEntities[_addr].active);
 
-        TaxEntity memory b = TaxEntity(_isDomestic,_isIndividual,true,_type,_taxId,_name);
+        TaxEntity memory b = TaxEntity(_isDomestic,_isIndividual,true,_type,_name);
         taxEntities[_addr] = b;
         taxEntityIndex.push(_addr);
 
@@ -80,6 +80,7 @@ contract Taxable is Owned {
     uint8 taxType;
     uint64 withHolding;
     address taxReturnId;
+    address taxAgencyId;
 
     modifier taxableIncome {
         _;
@@ -87,8 +88,9 @@ contract Taxable is Owned {
         assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(TaxReturn.TaxType,uint64)")), TaxReturn.TaxType(taxType), withHolding));
     }
 
-    function Taxable(address _addr, uint8 _taxType, uint64 _withHold) public {
-        taxReturnId = _addr;
+    function Taxable(address _addrReturn, address _addrAgency, uint8 _taxType, uint64 _withHold) public {
+        taxReturnId = _addrReturn;
+        taxAgencyId = _addrAgency;
         taxType = _taxType;
         withHolding = _withHold;
     }

@@ -3,6 +3,7 @@ pragma solidity ^0.4.16;
 import "./SafeContract.sol";
 import "./SafeMath.sol";
 import "./Payment.sol";
+import "./TaxAgencies.sol";
 
 contract EmploymentRecord is Owned, Mutex {
     enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
