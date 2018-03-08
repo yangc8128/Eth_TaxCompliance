@@ -1,0 +1,11 @@
+Project Todos's
+/*
+ * When do you define the __Taxable__ contract members?
+ * When to spawn a __TaxReturn__?
+ * Current Tax Framework Iteration: single Tax Agency
+ * Current Tax Framework Iteration: monitor employee income, not business income
+ * Second Tax Framework Iteration: two different levels of Tax Agencies
+ */
+ Fix functionality for the TimeMachine
+ Modify Payment Creation to include taxes
+ Activity Diagrams that Represents all use cases with swimlanes

@@ -26,6 +26,7 @@ import 'babel-polyfill';
 var EmploymentRecord = artifacts.require("EmploymentRecord");
 var Payment = artifacts.require("Payment");
 var TaxAgency = artifacts.require("TaxAgency");
+var TaxReport = artifacts.require("TaxReport");
 
 // Helper Test Function
 const increaseTime = function(duration) {
@@ -61,7 +62,7 @@ contract('EmploymentRecord', function(accounts) {
 
   const testSetEmployee = async function (type, acctID, stringTag) {
     let instance = await EmploymentRecord.deployed();
-    await instance.setEmployee(type,acctID,"Bob","Marley");
+    await instance.setEmployee(type,acctID,"Bob Marley");
     let activeStatus = await instance.accessEmployee.call(acctID);
     assert.equal(activeStatus, true, "Did not create employee, nor properly mapped for: " + stringTag);
   }
@@ -78,8 +79,29 @@ contract('EmploymentRecord', function(accounts) {
     testSetEmployee(3, accounts[3], "Contract");
   });
 
-  it("Pre-6 should create Tax Returns / Tax Report for all mapped employees", async function() {
-    
+  it("Pre-6a should create Tax Entities for all mapped employees", async function() {
+    let instance = await TaxAgency.deployed();
+    let countBefore = await instance.indexCount.call();
+    instance.setTaxEntity(accounts[0],true,true,0,"Bob Marley");
+    instance.setTaxEntity(accounts[1],true,true,0,"Bob Marley");
+    instance.setTaxEntity(accounts[2],true,true,0,"Bob Marley");
+    instance.setTaxEntity(accounts[3],true,true,0,"Bob Marley");
+    let countAfter = await instance.indexCount.call();
+    assert.equal(countAfter.valueOf(), countBefore.toNumber() + 4, "Four tax entities were not set");
+  })
+
+  let instanceTAgencyId = await (TaxAgency.deployed()).address;//instanceTAgency.address
+  const spawnTaxReport = function(instance,taxEntityId,taxAgencyId) {
+    let reportAddress = await (TaxReport.new({from: taxEntityId}, taxAgencyId,2017)).address;
+    // Check for existent contract
+    // Check for contract in TaxAgency
+  }
+  it("Pre-6b should create Tax Report for all mapped employees", async function() {
+    let instance = await TaxAgency.deployed();
+    await spawnTaxReport(instance,accounts[0],instanceTAgencyId);
+    await spawnTaxReport(instance,accounts[1],instanceTAgencyId);
+    await spawnTaxReport(instance,accounts[2],instanceTAgencyId);
+    await spawnTaxReport(instance,accounts[3],instanceTAgencyId);
   })
 
   // Consider making frequency just input for seconds
@@ -91,9 +113,11 @@ contract('EmploymentRecord', function(accounts) {
 
   it("6 should create and map a Payment for existing employee", async function() {
     let instance = await EmploymentRecord.deployed();
+    let instanceTax = await TaxAgency.deployed();
+    var taxReportAddr = instanceTax.taxReports.call(accounts[1]);
 
     var countBefore = await instance.getPaymentContractsCount.call();
-    await instance.createPayment(accounts[1], pay_init, freq_init, endTime_init);
+    await instance.setPayment(accounts[1], 0, 0, pay_init, freq_init, endTime_init);
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.equal(countAfter.valueOf(), (++countBefore).valueOf(), "Payment not successfully created and mapped");
   });
@@ -208,25 +232,6 @@ contract('EmploymentRecord', function(accounts) {
   });
   // Attempt to kill Payment prior to withdraw/payout
   */
-});
-
-/*
- * When do you define the __Taxable__ contract members?
- * When to spawn a __TaxReturn__?
- * Current Tax Framework Iteration: single Tax Agency
- * Current Tax Framework Iteration: monitor employee income, not business income
- * Second Tax Framework Iteration: two different levels of Tax Agencies
- */
-contract('TaxAgencies', function(accounts) {
-  it("should create some tax entities", async function() {
-    let instance = await TaxAgency.deployed();
-
-  });
-  it("should spawn some tax returns from tax entities", async function() {
-    let instance = await TaxAgency.deployed();
-
-    // spawn taxReturns
-  });
   it("should apply report some taxable transactions to tax returns", async function() {
     // Apply payroll
     // Reference EmploymentRecord

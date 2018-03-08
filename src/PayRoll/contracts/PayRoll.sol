@@ -5,6 +5,7 @@ import "./SafeMath.sol";
 import "./Payment.sol";
 import "./TaxAgencies.sol";
 
+// Contract can be split into libraries
 contract EmploymentRecord is Owned, Mutex {
     enum EmploymentType {OWNER, PERM, CASUAL, CONTRACT}
     event EmployeeCreationEvent( );
@@ -12,14 +13,12 @@ contract EmploymentRecord is Owned, Mutex {
     event AccessEmployeeEvent(
         bool active,
         EmploymentType status,
-        bytes16 fName,
-        bytes16 lName
+        bytes32 name
     );
     struct Employee {
         bool active;
         EmploymentType status;
-        bytes16 fName;
-        bytes16 lName;
+        bytes32 name;
     }
 
     // maps employee address to a employee struct
@@ -33,8 +32,7 @@ contract EmploymentRecord is Owned, Mutex {
     function setEmployee(
         EmploymentType _status,
         address _addr,
-        bytes16 _fName,
-        bytes16 _lName
+        bytes32 _name
     )
         public
         onlyOwner
@@ -42,7 +40,7 @@ contract EmploymentRecord is Owned, Mutex {
         require(employees[_addr].active == false);
 
         // Creating new Employee and recording the address
-        Employee memory e = Employee(true,_status, _fName, _lName);
+        Employee memory e = Employee(true,_status, _name);
         employees[_addr] = e;
         employeeIndex.push(_addr);
 
@@ -52,7 +50,7 @@ contract EmploymentRecord is Owned, Mutex {
     // Access an Employee by its address, and returns an event for the DApp
     function accessEmployee(address _addr) external noReentrancy returns(bool) {
         Employee memory e = employees[_addr];
-        AccessEmployeeEvent(e.active,e.status,e.fName,e.lName);
+        AccessEmployeeEvent(e.active,e.status,e.name);
         return e.active;
     }
 

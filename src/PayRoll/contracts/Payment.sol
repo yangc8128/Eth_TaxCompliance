@@ -4,6 +4,7 @@ import "./SafeContract.sol";
 import "./SafeMath.sol";
 import "./TaxFramework.sol";
 
+// Relationship cannot be split by a library
 contract Payment is Owned, Mutex, Taxable {
     event PaymentCreationEvent( );
     event PaymentEvent (
@@ -18,7 +19,6 @@ contract Payment is Owned, Mutex, Taxable {
     uint256 lastUpdate; uint256 endTime; uint256 owed;
     uint256[] private FREQUENCIES = [0, 0.5 weeks, 1 weeks, 2 weeks, 4 weeks];
 
-    // Considering making it payable
     function Payment(
         address _employer,
         address _employee,
@@ -87,6 +87,7 @@ contract PermanentPay is Payment {
     { }
 
     // Based off of freq
+    // Commented check on time, until timemachine is fixed
     function setPay( ) internal {
         //uint256 freqCount = (now-lastUpdate)%freq;
         lastUpdate = now;

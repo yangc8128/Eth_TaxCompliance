@@ -16,8 +16,9 @@ contract TaxAgency is Owned {
     }
 
     mapping (address => TaxEntity) public taxEntities;
-    mapping (address => address[]) public taxReturns;
+    mapping (address => address[]) public taxReports;
     address[] public taxEntityIndex;
+    uint public taxReportsCount;
 
     function setTaxEntity(
         address _addr,
@@ -39,16 +40,20 @@ contract TaxAgency is Owned {
     }
     function setTaxReturn(address _taxEntity, address _taxReturn) external {
         require(taxEntities[_taxEntity].active);
-        taxReturns[_taxEntity].push(_taxReturn);
+        taxReports[_taxEntity].push(_taxReturn);
+        taxReportsCount++;
+    }
+    function indexCount() public constant returns(uint) {
+        return taxEntityIndex.length;
     }
     //function updateTaxEntity() public;
-    function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
+    //function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
 }
 
 
 // Depends on preexisting Tax Agency
 // Recall owner is directly the tax payer
-contract TaxReturn is Owned {
+contract TaxReport is Owned {
     // Modifiable to later updates for the Tax Agencies
     enum TaxType {INCOME,CAPITAL,WINS,DIVIDENDS}
 
@@ -62,6 +67,11 @@ contract TaxReturn is Owned {
     uint64 taxOwed; // x <= 1.84e+19
     uint64[4] itemizedTaxes; // Also modifiable for future updates
     address taxAgency;
+
+    function TaxReport(address _agencyAddr, uint16 _taxableYear) public {
+        taxAgency = _agencyAddr;
+        taxableYear = _taxableYear;
+    }
 
     function fileTaxItem(TaxType _taxType, uint64 _withHolding) external {
         taxOwed += _withHolding;
@@ -86,7 +96,7 @@ contract Taxable is Owned {
     modifier taxableIncome {
         _;
         // Report withholding
-        assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(TaxReturn.TaxType,uint64)")), TaxReturn.TaxType(taxType), withHolding));
+        assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(TaxReport.TaxType,uint64)")), TaxReport.TaxType(taxType), withHolding));
     }
 
     function setTaxable(
