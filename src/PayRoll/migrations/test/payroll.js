@@ -88,7 +88,7 @@ contract('EmploymentRecord', function(accounts) {
     instance.setTaxEntity(accounts[3],true,true,0,"Bob Marley");
     let countAfter = await instance.indexCount.call();
     assert.equal(countAfter.valueOf(), countBefore.toNumber() + 4, "Four tax entities were not set");
-  })
+  });
 
   let instanceTAgencyId = await (TaxAgency.deployed()).address;//instanceTAgency.address
   const spawnTaxReport = function(instance,taxEntityId,taxAgencyId) {
@@ -102,7 +102,7 @@ contract('EmploymentRecord', function(accounts) {
     await spawnTaxReport(instance,accounts[1],instanceTAgencyId);
     await spawnTaxReport(instance,accounts[2],instanceTAgencyId);
     await spawnTaxReport(instance,accounts[3],instanceTAgencyId);
-  })
+  });
 
   // Consider making frequency just input for seconds
   var pay_init = 250000;
@@ -121,34 +121,7 @@ contract('EmploymentRecord', function(accounts) {
     var countAfter = await instance.getPaymentContractsCount.call();
     assert.equal(countAfter.valueOf(), (++countBefore).valueOf(), "Payment not successfully created and mapped");
   });
- /*
-  // Force Failed Tests <PASSED at failing>
-  it("7 should fail to create and map a Payment for nonexisting employee", async function() {
-    let instance = await EmploymentRecord.deployed();
 
-    // Active Employee Check
-    let activeStatus = await instance.accessEmployee.call(accounts[5]);
-    assert.equal(activeStatus.valueOf(), false, "Employee exists");
-
-    var countBefore = await instance.getPaymentContractsCount.call();
-    await instance.createPayment(accounts[5], pay_init, freq_init, endTime_init);
-    var countAfter = await instance.getPaymentContractsCount.call();
-    assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
-  });
-  it("8 should fail to create and map a Payment for nonactive employee", async function() {
-    let instance = await EmploymentRecord.deployed();
-    await instance.updateEmployeeActiveFlag(accounts[2], false);
-
-    // Active Employee Check
-    let activeStatus = await instance.accessEmployee.call(accounts[2]);
-    assert.equal(activeStatus.valueOf(), false, "Account is still active");
-
-    var countBefore = await instance.getPaymentContractsCount.call();
-    await instance.createPayment(accounts[2], pay_init, freq_init, endTime_init);
-    var countAfter = await instance.getPaymentContractsCount.call();
-    assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
-  });
- */
 
   // Requires timemachine, accounts that are not accounts[0]
   // Attempt to timely ask for a withdraw on a Payment from employee
@@ -180,7 +153,55 @@ contract('EmploymentRecord', function(accounts) {
     assert.notEqual(balanceBefore.valueOf(), balanceAfter.valueOf(), "Payment was not successful");
   }); // TODO: TIMEMACHINE IS COMMENTED OUT
 
+ 
+  // Will be applied to the test doing payouts for an individual
+  it("13 should apply report some taxable transactions to tax reports", async function() {
+    // Apply payroll
+    // Reference EmploymentRecord
+    // Check if payment still exists from prior contract test
+  });
+  it("should display logs of taxable transactions from tax reports", async function() {
+    let instance = await TaxAgency.deployed();
+    let taxReportAddr = await (instance.taxReports.call(0)).call(0);
+    var taxReport = TaxReport.at(taxReportAddr);
+    let filedTaxItemEvent = taxReport.FiledTaxItemEvent({}, {fromBlock: 0, toBlock: 'latest'});
+    filedTaxItemEvent.get((error,logs) => {
+      logs.forEach(log => console.log(log.args));
+    });
+    // https://ethereum.stackexchange.com/questions/16313/how-can-i-view-event-logs-for-an-ethereum-contract?rq=1
+  });
+});
+
  /*
+  // Force Failed Tests <PASSED at failing>
+  it("7 should fail to create and map a Payment for nonexisting employee", async function() {
+    let instance = await EmploymentRecord.deployed();
+
+    // Active Employee Check
+    let activeStatus = await instance.accessEmployee.call(accounts[5]);
+    assert.equal(activeStatus.valueOf(), false, "Employee exists");
+
+    var countBefore = await instance.getPaymentContractsCount.call();
+    await instance.createPayment(accounts[5], pay_init, freq_init, endTime_init);
+    var countAfter = await instance.getPaymentContractsCount.call();
+    assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
+  });
+  it("8 should fail to create and map a Payment for nonactive employee", async function() {
+    let instance = await EmploymentRecord.deployed();
+    await instance.updateEmployeeActiveFlag(accounts[2], false);
+
+    // Active Employee Check
+    let activeStatus = await instance.accessEmployee.call(accounts[2]);
+    assert.equal(activeStatus.valueOf(), false, "Account is still active");
+
+    var countBefore = await instance.getPaymentContractsCount.call();
+    await instance.createPayment(accounts[2], pay_init, freq_init, endTime_init);
+    var countAfter = await instance.getPaymentContractsCount.call();
+    assert.notEqual(countAfter.valueOf(), (++countBefore).valueOf(), "Incorrect payment successfully created and mapped");
+  });
+ */
+
+/*
   // Why are these necessary? What errors will be faced? Possibly will payout anyways
   // Attempt to prematurely withdraw Payment from employee
   it("10 should fail to prematurely pay employee from Payment", async function() {
@@ -231,14 +252,4 @@ contract('EmploymentRecord', function(accounts) {
     assert.equals(balanceBefore + pay, balanceAfter, "Payment was successful");
   });
   // Attempt to kill Payment prior to withdraw/payout
-  */
-  it("should apply report some taxable transactions to tax returns", async function() {
-    // Apply payroll
-    // Reference EmploymentRecord
-    // Check if payment still exists from prior contract test
-  });
-  it("should display logs of yearly (later account for non-yearly) taxable transactions from tax returns", async function() {
-    let instance = await TaxAgency.deployed();
-    // https://ethereum.stackexchange.com/questions/16313/how-can-i-view-event-logs-for-an-ethereum-contract?rq=1
-  });
-});
+*/

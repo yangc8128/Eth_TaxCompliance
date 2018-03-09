@@ -1,0 +1,33 @@
+Activity Diagram Mockups
+>> Tax Agency N
+Create Representative Tax Agency Contract
+    setTaxEntity()
+    setTaxReturn() // TaxReturn Factory
+Create Children Taxable Contracts
+    Name - for Tax Type
+    uint - rate
+    adress - to route to a TaxReturn
+    address - reference creator taxAgency
+
+    modifier taxableIncome
+        // For reporting
+    function setTaxable
+>> Taxable Entities
+Create TaxReport per Tax Agency
+    uint - taxable year
+    uint - taxOwed
+    uint - array of itemized taxes
+    address - reference creator taxAgency
+    function fileTaxItem
+>> Payroll Creator
+Payment need to apply Taxable to payable
+
+/*
+W-2
+ - Copy A for SSA
+ - Copy 1 for State, City, Local Tax Dept
+ - Copy B filed w/ employee's fed tax return
+ - Copy C for employee's RECORDS
+ - Copy 2 filed w/ employee's state, city, local tax return
+ - Copy D for employer
+ */
