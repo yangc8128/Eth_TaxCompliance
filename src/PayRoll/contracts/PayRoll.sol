@@ -57,63 +57,43 @@ contract EmploymentRecord is Owned, Mutex {
     function setPayment(
         address _employee,
         address _addrReturn,
-        uint8 _taxType,
         uint64 _withHold,
-        uint256 _pay,
-        uint256 _freq,
-        uint256 _end
+        uint256 _pay
     )
         public
         onlyOwner
     {
-        createPayment(_employee,_pay,_freq,_end);
-        setTaxes(_employee,_addrReturn,_taxType,_withHold);
+        createPayment(_employee,_pay);
+        setTaxes(_employee,_addrReturn,_withHold);
     }
 
     // Consider making payable for during creation
     function createPayment(
         address _employee,
-        uint256 _pay,
-        uint256 _freq,
-        uint256 _end
+        uint256 _pay
     )
         internal
     {
         require(paymentIndex.length < 100);
         require(employees[_employee].active);
 
-        // Using EVM assembly code to check active/unactive contract: https://stackoverflow.com/questions/37644395/how-to-find-out-if-an-ethereum-address-is-a-contract
         uint size;
         address payAddr = paymentContracts[_employee];
         assembly { size := extcodesize(payAddr) }
         Payment p = Payment(payAddr);
         require(size == 0 || !(p.active()));
 
-        var _status = employees[_employee].status;
-
         // Creating different payment contracts based off the employment types
-        if (_status == EmploymentRecord.EmploymentType.PERM || _status == EmploymentRecord.EmploymentType.OWNER) {
-            PermanentPay _perm = new PermanentPay(owner,_employee,_pay,_freq);
-            paymentContracts[_employee] = _perm;
-            paymentIndex.push(_perm);
-        } else if (_status == EmploymentRecord.EmploymentType.CASUAL) {
-            CasualPay _casual = new CasualPay(owner,_employee,_pay);
-            paymentContracts[_employee] = _casual;
-            paymentIndex.push(_casual);
-        } else if (_status == EmploymentRecord.EmploymentType.CONTRACT) {
-            ContractPay _contract = new ContractPay(owner,_employee,_pay,_freq,_end);
-            paymentContracts[_employee] = _contract;
-            paymentIndex.push(_contract);
-        } else {
-            revert();
-        }
+        Payment _perm = new Payment(owner,_employee,_pay);
+        paymentContracts[_employee] = _perm;
+        paymentIndex.push(_perm);
+
         CheckPaymentEvent(paymentContracts[_employee]);
     }
 
     function setTaxes(
         address _employee,
         address _addrReturn,
-        uint8 _type,
         uint64 _withHold
     )
         internal
@@ -125,7 +105,7 @@ contract EmploymentRecord is Owned, Mutex {
         Payment p = Payment(_payAddr);
         require(size != 0 || p.active());
 
-        p.setTaxable(_addrReturn, _type, _withHold);
+        p.setTaxable(_addrReturn, _withHold);
     }
 
     function checkPayment() external noReentrancy {
