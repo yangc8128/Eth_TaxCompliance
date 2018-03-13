@@ -64,24 +64,27 @@ contract TaxReport is Owned {
     );
     uint8 filingStatus;
     uint16 taxableYear; // x <= 6.55e+3
-    uint64 taxLiability; // x <= 1.84e+19
+    uint64 taxOwed; // x <= 1.84e+19
     uint256 public projYearlyIncome;
     uint64[4] public itemizedTaxes; // Also modifiable for future updates
-    address taxPayer;
+    address taxAgency;
 
-    function TaxReport(address _taxPayerAddr, uint16 _taxableYear) public {
-        taxPayer = _taxPayerAddr;
+    function TaxReport(address _agencyAddr, uint16 _taxableYear) public {
+        taxAgency = _agencyAddr;
         taxableYear = _taxableYear;
     }
 
     function fileTaxItem(TaxType _taxType, uint64 _withHolding) external {
-        taxLiability += _withHolding;
+        taxOwed += _withHolding;
         itemizedTaxes[uint8(_taxType)] += _withHolding;
 
         FiledTaxItemEvent(uint8(_taxType), _withHolding, now);
     }
 }
 
+
+// https://ethereum.stackexchange.com/questions/7325/stack-too-deep-try-removing-local-variables
+// The stack on Ethereum is only 7 deep
 
 // Depends on preexisting TaxReturn contract
 // Recall owner is directly the service provider, or employer
@@ -93,17 +96,19 @@ contract Taxable is Owned {
     modifier taxableIncome {
         _;
         // Report withholding
-        TaxReport t = TaxReport(taxReportId);
-        t.fileTaxItem(TaxReport.TaxType(taxType), withHolding);
+        assert(taxReportId.call(bytes4(keccak256("fileTaxItem(TaxReport.TaxType,uint64)")), TaxReport.TaxType(taxType), withHolding));
     }
 
     function setTaxable(
         address _addrReturn,
+        uint8 _taxType,
         uint64 _withHold
     )
         public
     {
         taxReportId = _addrReturn;
+        taxType = _taxType;
         withHolding = _withHold;
     }
 }
+

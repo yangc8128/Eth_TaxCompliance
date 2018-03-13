@@ -12,6 +12,8 @@ contract StateTaxation is TaxAgency {
     // Define Tax Brackets
 }
 
+// https://answers.microsoft.com/en-us/windows/forum/windows8_1-performance/unable-to-defragment-and-optimize-volume-drive-on/ee995793-bcfd-4748-83c4-4669aafcaa12
+// https://themerkle.com/one-smart-contract-and-3-5m-in-ether-can-cripple-the-ethereum-network-for-a-full-week/
 
 /*
     10%    $0 to $9,325    10% of Taxable Income

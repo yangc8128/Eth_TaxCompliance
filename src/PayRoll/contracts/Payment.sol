@@ -16,18 +16,24 @@ contract Payment is Owned, Mutex, Taxable {
 
     address employer; address employee;
     uint256 public payPer; uint256 public freq;
-    uint256 owed;
+    uint256 lastUpdate; uint256 endTime; uint256 owed;
+    uint256[] private FREQUENCIES = [0, 0.5 weeks, 1 weeks, 2 weeks, 4 weeks];
 
     function Payment(
         address _employer,
         address _employee,
-        uint256 _pay
+        uint256 _pay,
+        uint256 _freq,
+        uint256 _endTime
     )
         public
     {
         employer = _employer;
         employee = _employee;
         payPer = _pay;
+        freq = FREQUENCIES[_freq]; // Possible error with invalid Frequencies
+        endTime = now + _endTime;
+        lastUpdate = now;
         owed = 0;
         PaymentCreationEvent();
     }
@@ -65,8 +71,62 @@ contract Payment is Owned, Mutex, Taxable {
         }
     }
 
+    function setPay( ) internal;
+}
+
+
+contract PermanentPay is Payment {
+    function PermanentPay(
+        address _employer,
+        address _employee,
+        uint256 _pay,
+        uint256 _freq
+    )
+        Payment(_employer,_employee,_pay, _freq, 0)
+        public
+    { }
+
+    // Based off of freq
+    // Commented check on time, until timemachine is fixed
     function setPay( ) internal {
+        //uint256 freqCount = (now-lastUpdate)%freq;
+        lastUpdate = now;
+        owed += payPer;
+        //owed += freqCount*payPer;
+    }
+}
+contract CasualPay is Payment {
+    function CasualPay(
+        address _employer,
+        address _employee,
+        uint256 _pay
+    )
+        Payment(_employer,_employee,_pay,0,0)
+        public
+     { }
+
+    function setPay( ) internal {
+        lastUpdate = now;
         owed += payPer;
     }
 }
+contract ContractPay is Payment {
+    function ContractPay(
+        address _employer,
+        address _employee,
+        uint256 _pay,
+        uint256 _freq,
+        uint256 _endTime
+    )
+        Payment(_employer,_employee,_pay,_freq,_endTime)
+        public 
+     { }
 
+    // Based off of freq and contract endTime
+    function setPay( ) internal {
+        uint256 benchmark = (endTime - now >= 0) ? now : endTime;
+        uint256 freqCount = (benchmark-lastUpdate)%freq;
+        lastUpdate = now;
+        owed += freqCount*payPer;
+    }
+}
