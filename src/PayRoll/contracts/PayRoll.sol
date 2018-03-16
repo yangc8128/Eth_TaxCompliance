@@ -105,7 +105,10 @@ contract EmploymentRecord is Owned, Mutex {
         Payment p = Payment(_payAddr);
         require(size != 0 || p.active());
 
-        p.setTaxable(_addrReturn, _withHold);
+        p.setFedTaxable(_addrReturn, _withHold);
+        p.setStateTaxable(_addrReturn, _withHold);
+        p.setSSTaxable(_addrReturn, _withHold);
+        p.setMedicareTaxable(_addrReturn, _withHold);
     }
 
     function checkPayment() external noReentrancy {

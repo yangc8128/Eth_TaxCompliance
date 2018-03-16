@@ -16,7 +16,8 @@ contract TaxAgency is Owned {
     }
 
     mapping (address => TaxEntity) public taxEntities;
-    mapping (address => address[]) public taxReports;
+    // Simplified to just store one tax report at a time
+    mapping (address => address) public taxReports;
     address[] public taxEntityIndex;
     uint public taxReportsCount;
 
@@ -38,16 +39,15 @@ contract TaxAgency is Owned {
 
         TaxEntityCreation();
     }
-    function setTaxReturn(address _taxEntity, address _taxReturn) external {
-        require(taxEntities[_taxEntity].active);
-        taxReports[_taxEntity].push(_taxReturn);
+    function spawnTaxReport() external {
+        require(taxEntities[msg.sender].active);
+        TaxReport t = new TaxReport(msg.sender);
+        taxReports[msg.sender] = t;
         taxReportsCount++;
     }
     function indexCount() public constant returns(uint) {
         return taxEntityIndex.length;
     }
-    //function updateTaxEntity() public;
-    //function returnTaxReturn() public constant returns(uint taxOwed, uint taxRefund);
 }
 
 
@@ -63,15 +63,13 @@ contract TaxReport is Owned {
         uint256 dateFiled
     );
     uint8 filingStatus;
-    uint16 taxableYear; // x <= 6.55e+3
     uint64 taxLiability; // x <= 1.84e+19
     uint256 public projYearlyIncome;
     uint64[4] public itemizedTaxes; // Also modifiable for future updates
     address taxPayer;
 
-    function TaxReport(address _taxPayerAddr, uint16 _taxableYear) public {
+    function TaxReport(address _taxPayerAddr) public {
         taxPayer = _taxPayerAddr;
-        taxableYear = _taxableYear;
     }
 
     function fileTaxItem(TaxType _taxType, uint64 _withHolding) external {
@@ -86,24 +84,18 @@ contract TaxReport is Owned {
 // Depends on preexisting TaxReturn contract
 // Recall owner is directly the service provider, or employer
 contract Taxable is Owned {
-    uint8 taxType;
-    uint64 withHolding;
+    //uint8 taxType;
+    //uint64 withHolding;
     address taxReportId;
 
+    /*
     modifier taxableIncome {
         _;
         // Report withholding
         TaxReport t = TaxReport(taxReportId);
         t.fileTaxItem(TaxReport.TaxType(taxType), withHolding);
     }
+    */
 
-    function setTaxable(
-        address _addrReturn,
-        uint64 _withHold
-    )
-        public
-    {
-        taxReportId = _addrReturn;
-        withHolding = _withHold;
-    }
+    //function setTaxable(address _addrReturn, uint64 _withHold) public;
 }

@@ -14,7 +14,7 @@ contract Owned {
         _;
     }
 
-    function stop( ) public onlyOwner { active = false; }
+    //function stop( ) public onlyOwner { active = false; }
     function close( ) public onlyOwner { selfdestruct(owner); }
 }
 

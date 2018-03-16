@@ -3,9 +3,10 @@ pragma solidity ^0.4.16;
 import "./SafeContract.sol";
 import "./SafeMath.sol";
 import "./TaxFramework.sol";
+import "./TaxAgencies.sol";
 
 // Relationship cannot be split by a library
-contract Payment is Owned, Mutex, Taxable {
+contract Payment is Owned, Mutex, FedIncomeTax2017, StateIncomeTax2017, SocialSecurityTax2017, MedicareTax2017 {
     event PaymentCreationEvent( );
     event PaymentEvent (
         bytes8 msg,
@@ -33,7 +34,7 @@ contract Payment is Owned, Mutex, Taxable {
     }
 
     // Functions only when payout was previously called
-    function withdraw( ) external payable noReentrancy taxableIncome {
+    function withdraw( ) external payable noReentrancy {
         // Withdrawal Authorization, Employee
         require(msg.sender == employee);
         require(owed > 0);
@@ -51,7 +52,7 @@ contract Payment is Owned, Mutex, Taxable {
     }
 
     // Is required to refill a Payment contract for the Employee to withdraw
-    function payout( ) external payable noReentrancy taxableIncome {
+    function payout( ) external payable noReentrancy taxableToSSA {
         // Payout Authorization, Employer
         require(msg.sender == employer);
         setPay();

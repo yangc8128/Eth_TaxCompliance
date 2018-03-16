@@ -13,75 +13,69 @@ contract StateTaxation is TaxAgency {
 }
 
 
-/*
-    10%    $0 to $9,325    10% of Taxable Income
-    15%    $9,325 to $37,950    $932.50 plus 15% of the excess over $9325
-    25%    $37,950 to $91,900    $5,226.25 plus 25% of the excess over $37,950
-    28%    $91,900 to $191,650    $18,713.75 plus 28% of the excess over $91,900
-    33%    $191,650 to $416,700    $46,643.75 plus 33% of the excess over $191,650
-    35%    $416,700 to $418,400    $120,910.25 plus 35% of the excess over $416,700
-    39.60%    $418,400+    $121,505.25 plus 39.6% of the excess over $418,400
- */
 contract FedIncomeTax2017 is Taxable {
-    function taxBracket() internal pure {
-        //uint yearly = taxReturnId.call(bytes4(keccak256("projYearlyIncome()")));
-        //uint owed;
-        // Figure a way to deal with percentages
-      /*
-        if (yearly < 9325) {
-            owed = 9325 * 0.1;
-        } else if (yearly < 37950) {
-            owed = taxCalc(932.5,yearly,0.15);
-        } else if (yearly < 91900) {
-            owed = taxCalc(5226.25,yearly,0.25);
-        } else if (yearly < 191650) {
-            owed = taxCalc(18713.75,yearly,0.28);
-        } else if (yearly < 416700) {
-            owed = taxCalc(46643.75,yearly,0.33);
-        } else if (yearly < 418400) {
-            owed = taxCalc(120910.25,yearly,0.35);
-        } else {
-            owed = taxCalc(121505.25,yearly,0.396);
-        }
-        assert(taxReturnId.call(bytes4(keccak256("fileTaxItem(TaxReport.TaxType,uint64)")), TaxReport.TaxType(taxType), owed));
-      */
-    }
-    function taxCalc(uint owed, uint yearly, uint rate) internal pure returns (uint) {
-        // rational const issue
-        //https://ethereum.stackexchange.com/questions/21202/solidity-data-types-fixed-and-ufixed
-        uint excess = yearly - owed;
-        return owed + excess * rate;
-    }
+    uint64 fed_withHold;
     modifier taxableToFed {
         _;
-        taxBracket();
+        TaxReport t = TaxReport(taxReportId);
+        t.fileTaxItem(TaxReport.TaxType(0), fed_withHold);
+    }
+    function setFedTaxable(address _addrReturn, uint64 _withHold) public {
+        fed_withHold = _withHold;
+        taxReportId = _addrReturn;
     }
 }
 
 contract StateIncomeTax2017 is Taxable {
-    uint bleh;
+    uint64 state_withHold;
+    modifier taxableToState {
+        _;
+        TaxReport t = TaxReport(taxReportId);
+        t.fileTaxItem(TaxReport.TaxType(1), state_withHold);
+    }
+    function setStateTaxable(address _addrReturn, uint64 _withHold) public {
+        state_withHold = _withHold;
+        taxReportId = _addrReturn;
+    }
 }
 
 contract SocialSecurityTax2017 is Taxable {
+    uint64 SST_withHold;
+
     modifier taxableToSSA {
         _;
-        uint24 annualLimit = 127000;
+        uint24 annualLimit = 27000;
         TaxReport t = TaxReport(taxReportId);
-        uint64 owedSSTax = t.itemizedTaxes(1);
-        uint pay = 0;
-        if (owedSSTax + pay > annualLimit) {
-            pay = annualLimit - owedSSTax;
+        uint64 owedSSTax = t.itemizedTaxes(2);
+        if (owedSSTax > annualLimit) {
+            t.fileTaxItem(TaxReport.TaxType(2), 0);
+        } else if (owedSSTax + SST_withHold > annualLimit) {
+            t.fileTaxItem(TaxReport.TaxType(2), annualLimit - owedSSTax);
+        } else {
+            t.fileTaxItem(TaxReport.TaxType(2), SST_withHold);
         }
-        t.fileTaxItem(TaxReport.TaxType(taxType), withHolding);
+    }
+    function setSSTaxable(address _addrReturn, uint64 _withHold) public {
+        SST_withHold = _withHold;
+        taxReportId = _addrReturn;
     }
 }
 
 contract MedicareTax2017 is Taxable {
+    uint64 medi_withHold;
+
     modifier taxableToMedicare {
-        _;/*
-        uint24 taxableMinimum = 200000;
+        _;
+        uint24 taxableMinimum = 20000;
         TaxReport t = TaxReport(taxReportId);
-        console.log(taxableMinimum);
-        console.log(t.taxType);*/
+        if (t.itemizedTaxes(3) > taxableMinimum) {
+            t.fileTaxItem(TaxReport.TaxType(3), medi_withHold);
+        } else {
+            t.fileTaxItem(TaxReport.TaxType(3), 0);
+        }
+    }
+    function setMedicareTaxable(address _addrReport, uint64 _withHold) public {
+        medi_withHold = _withHold;
+        taxReportId = _addrReport;
     }
 }
